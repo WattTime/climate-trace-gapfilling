@@ -1,0 +1,6 @@
+{
+  "db_user": "",
+  "db_pass":"",
+  "host":"rds-climate-trace.watttime.org",
+  "database":"climatetrace"
+}
