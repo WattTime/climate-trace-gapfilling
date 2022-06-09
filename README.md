@@ -16,6 +16,14 @@ Run the following to activate virtual environment to use and disable to stop usi
 Once your environment is activated, run `pip install --default-timeout=1000 -r requirements.txt`. The increased default timeout is for pandas, since it is a large file and takes additional time to download.
 
 ### Running
+- First, you will need to add your database credentials to the `params.json` file.
+- Next, you can run the `main.py` file to run all actions. This will:
+  - Load Climate TRACE and EDGAR data
+  - Project EDGAR data forward in time
+     - Write that projected data to the database
+  - Load the projected data and fill Climate TRACE gaps with both EDGAR and EDGAR-projected
+  - Write the filled data to the database
+
 
 ### Testing
 We use the `pytest` library for unit testing the functionality. Simply run `pytest tests` from the head directory to run all tests in the folder.
