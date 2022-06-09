@@ -15,6 +15,8 @@ Run the following to activate virtual environment to use and disable to stop usi
 
 Once your environment is activated, run `pip install --default-timeout=1000 -r requirements.txt`. The increased default timeout is for pandas, since it is a large file and takes additional time to download.
 
+Run `pip install .` to install local packages via `setup.py`.
+
 ### Running
 - First, you will need to add your database credentials to the `params.json` file.
 - Next, you can run the `main.py` file to run all actions. This will:
