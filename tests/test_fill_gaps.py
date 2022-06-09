@@ -1,8 +1,8 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import numpy as np
-from gapfilling.fill_gaps import fill_all_sector_gaps
-from gapfilling.constants import COL_ORDER
+from gap_filling.fill_gaps import fill_all_sector_gaps
+from gap_filling.constants import COL_ORDER
 
 # Test cases that need to be written:
 def test_fill_all_sector_gaps_with_nan_return():

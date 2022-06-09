@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from gapfilling.edgar_projection import ProjectEdgarData
-from gapfilling.constants import DatabaseColumns as DbColumns
+from gap_filling.edgar_projection import ProjectEdgarData
+from gap_filling.constants import DatabaseColumns as DbColumns
 
 CO2 = "co2"
 N2O = "n2o"

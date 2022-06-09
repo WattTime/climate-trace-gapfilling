@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import psycopg2 as pg2
 
-from gapfilling.utils import parse_and_format_query_data
+from gap_filling.utils import parse_and_format_query_data
 
 INSERT_MAPPING = {"ois": "original_inventory_sector", "pen": "producing_entity_name",
                   "pei": "producing_entity_id", "re": "reporting_entity", "epf": "emitted_product_formula",

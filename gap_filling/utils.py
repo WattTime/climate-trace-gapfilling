@@ -3,7 +3,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from gapfilling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, get_iso3_code, \
+from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, get_iso3_code, \
     SECTORS
 
 

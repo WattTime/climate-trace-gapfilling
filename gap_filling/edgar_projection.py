@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from gapfilling.data_handler import DataHandler
-from gapfilling.constants import DatabaseColumns as DbColumns
-from gapfilling.utils import from_years_to_start_and_end_times, add_iso_value
+from gap_filling.data_handler import DataHandler
+from gap_filling.constants import DatabaseColumns as DbColumns
+from gap_filling.utils import from_years_to_start_and_end_times, add_iso_value
 
 
 class ProjectEdgarData:

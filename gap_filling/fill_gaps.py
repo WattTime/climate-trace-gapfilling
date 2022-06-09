@@ -1,6 +1,6 @@
 import numpy as np
 
-from gapfilling.constants import COMP_YEARS, COL_ORDER, GAP_EQUATIONS, GF_SOURCE_DATA_COLUMNS
+from gap_filling.constants import COMP_YEARS, COL_ORDER, GAP_EQUATIONS, GF_SOURCE_DATA_COLUMNS
 
 
 def prepare_df(concat_df):

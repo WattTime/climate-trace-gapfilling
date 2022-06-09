@@ -2,11 +2,11 @@ import argparse
 
 import pandas as pd
 
-from gapfilling.data_handler import DataHandler
-from gapfilling.edgar_projection import ProjectEdgarData
-from gapfilling.fill_gaps import fill_all_sector_gaps, prepare_df
-from gapfilling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, generate_carbon_equivalencies,
-                              assemble_data)
+from gap_filling.data_handler import DataHandler
+from gap_filling.edgar_projection import ProjectEdgarData
+from gap_filling.fill_gaps import fill_all_sector_gaps, prepare_df
+from gap_filling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, generate_carbon_equivalencies,
+                               assemble_data)
 
 
 def process_all(args):
