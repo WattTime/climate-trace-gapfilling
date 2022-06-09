@@ -3,4 +3,5 @@
 ct_venv
 venv
 __pycache__/
-params.json
+build/
+gap_filling.egg-info/
