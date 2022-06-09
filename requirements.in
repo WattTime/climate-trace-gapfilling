@@ -1,5 +1,4 @@
 numpy
-plotly
 matplotlib
 pandas
 psycopg2
