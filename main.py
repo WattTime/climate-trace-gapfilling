@@ -5,7 +5,7 @@ import pandas as pd
 from gap_filling.data_handler import DataHandler
 from gap_filling.edgar_projection import ProjectEdgarData
 from gap_filling.fill_gaps import fill_all_sector_gaps, prepare_df
-from gap_filling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, generate_carbon_equivalencies,
+from gap_filling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, get_all_faostat_data, generate_carbon_equivalencies,
                                assemble_data)
 
 
@@ -36,7 +36,7 @@ def process_all(args):
     # Get the CT data from db
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
     # Get the FAOSTAT data from db
-    faostat_data = dh.load_data("faostat", years_to_columns=True)
+    faostat_data = get_all_faostat_data(dh)
 
     # Gap fill on projected data
     concat_df = pd.concat([edgar_data, faostat_data, ct_data])
