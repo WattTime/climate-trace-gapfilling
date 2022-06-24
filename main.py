@@ -26,7 +26,7 @@ def process_all(args):
     df_projections = proj_edgar.project()
     df_projections_final = proj_edgar.prepare_to_write(df_projections)
     # Write results to the DB
-    dh.write_data(data_to_insert=df_projections_final, rows_type='edgar')
+    # dh.write_data(data_to_insert=df_projections_final, rows_type='edgar')
 
     ############################
     # Fill Gaps
@@ -37,7 +37,9 @@ def process_all(args):
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
 
     # # Gap fill on projected data
-    gap_filled_data = fill_all_sector_gaps(prepare_df(pd.concat([edgar_data, ct_data])))
+    concat_df = pd.concat([edgar_data, ct_data])
+    df = prepare_df(concat_df)
+    gap_filled_data = fill_all_sector_gaps(df)
 
     # Generate the co2e data
     co2e_20_data = generate_carbon_equivalencies(dh, gap_filled_data, co2e_to_compute=20)

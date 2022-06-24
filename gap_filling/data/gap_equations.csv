@@ -1,123 +1,50 @@
-sub-sector,inventory,sub_inventory,subinv_ipcc_code,subinv_units,values,gas output,notes
-other-energy-use,climate-trace,climate-trace,1.A.1.a.i; 1.A.1.a.ii,electricity-generation,-1,CO2,
-other-energy-use,edgar,edgar,1.A.1.a,Main Activity Electricity and Heat Production,1,CO2,
-railways,edgar,edgar,1.A.3.c ,Railways,1,CO2,
-road-transportation,edgar,edgar,1.A.3.b_noRES,Road Transportation no resuspension,1,CO2,
-other-transport,edgar,edgar,1.A.3.a,Civil Aviation,1,CO2,
-other-transport,edgar,edgar,1.A.3.d,Water-borne Navigation,1,CO2,
-other-transport,edgar,edgar,1.A.3.e,Other Transportation,1,CO2,
-other-transport,climate-trace,climate-trace,1.A.3.a,domestic-aviation,-1,CO2,
-other-transport,climate-trace,climate-trace,NUMBER,international-aviation,-1,CO2,
-residential-and-commercial-onsite-fuel-usage',edgar,edgar,1.A.4,Other Sectors,1,CO2,
-other-onsite-fuel-usage,edgar,edgar,1.A.5,Non-Specified,1,CO2,
-solid-fuel-transformation,edgar,edgar,1.B.1,Solid Fuels,1,CO2,
-solid-fuel-transformation,edgar,edgar,1.B.1.a,coal-mining,-1,CO2,
-other-fossil-fuel-operations,edgar,edgar,1.B.2,Oil and Natural Gas,1,CO2,
-other-fossil-fuel-operations,edgar,edgar,1.A.1.bc,Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1,CO2,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.i; 1.B.2.a.ii; 1.B.2.a.iii; 1.B.2.b.i; 1.B.2.b.ii; 1.B.2.c,oil-and-gas-production-and-transport,-1,CO2,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v,oil-and-gas-refining,-1,CO2,
-other-manufacturing,edgar,edgar,1.A.2,Manufacturing Industries and Construction,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.1,Cement production,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.2,Lime production,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.3 ,Glass Production,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.4,Other Process Uses of Carbonates,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.B,Chemical Industry,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.C,Metal Industry,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.D,Non-Energy Products from Fuels and Solvent Use,1,CO2,"** note that other manufacturing might have a portion of ""other-mineral-extraction' "
-other-manufacturing,climate-trace,climate-trace,2.A.1; 1.A.2.f,cement,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.c; 2.B.1; 2.B.7,chemicals,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.a; 2.C.1,steel,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,2.C.3; 1.A.2.b,aluminum,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.d; 2.H.1,pulp-and-paper,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,bauxite-mining,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,copper-mining,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,iron-mining,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,rock-quarrying,-1,CO2,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,sand-quarrying,-1,CO2,
-other-energy-use,climate-trace,climate-trace,1.A.1.a.i; 1.A.1.a.ii,electricity-generation,-1,CH4,
-other-energy-use,edgar,edgar,1.A.1.a,Main Activity Electricity and Heat Production,1,CH4,
-railways,edgar,edgar,1.A.3.c ,Railways,1,CH4,
-road-transportation,edgar,edgar,1.A.3.b_noRES,Road Transportation no resuspension,1,CH4,
-other-transport,edgar,edgar,1.A.3.a,Civil Aviation,1,CH4,
-other-transport,edgar,edgar,1.A.3.d,Water-borne Navigation,1,CH4,
-other-transport,edgar,edgar,1.A.3.e,Other Transportation,1,CH4,
-other-transport,climate-trace,climate-trace,1.A.3.a,domestic-aviation,-1,CH4,
-other-transport,climate-trace,climate-trace,NUMBER??,international-aviation,-1,CH4,
-other-transport,climate-trace,climate-trace,1.A.3.d; NUMBER>>,shipping,-1,CH4,** Note that shipping is for flag state -> this might not work 
-residential-and-commercial-onsite-fuel-usage',edgar,edgar,1.A.4,Other Sectors,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-onsite-fuel-usage,edgar,edgar,1.A.5,Non-Specified,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-solid-fuel-transformation,edgar,edgar,1.B.1,Solid Fuels,1,CO2,
-solid-fuel-transformation,edgar,edgar,1.B.1.a,coal-mining,-1,CO2,
-other-fossil-fuel-operations,edgar,edgar,1.B.2,Oil and Natural Gas,1,N2O,
-other-fossil-fuel-operations,edgar,edgar,1.A.1.bc,Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1,CO2,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.i; 1.B.2.a.ii; 1.B.2.a.iii; 1.B.2.b.i; 1.B.2.b.ii; 1.B.2.c,oil-and-gas-production-and-transport,-1,N2O,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v,oil-and-gas-refining,-1,N2O,
-other-manufacturing,edgar,edgar,1.A.2,Manufacturing Industries and Construction,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.1,Cement production,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.2,Lime production,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.3 ,Glass Production,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.A.4,Other Process Uses of Carbonates,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.B,Chemical Industry,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.C,Metal Industry,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,edgar,edgar,2.D,Non-Energy Products from Fuels and Solvent Use,1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,2.A.1; 1.A.2.f,cement,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.c; 2.B.1; 2.B.7,chemicals,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.a; 2.C.1,steel,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,2.C.3; 1.A.2.b,aluminum,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.d; 2.H.1,pulp-and-paper,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,bauxite-mining,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,copper-mining,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,iron-mining,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,rock-quarrying,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,sand-quarrying,-1,CH4,"** Note that other manufacturing might have a portion of ""other-mineral-extraction') "
-enteric-fermentation,faostat,faostat,3.A ,enteric-fermentation,1,CH4,** Note that edgar also has this info 
-manure-management,faostat,faostat,3.B,manure-management,1,CH4,** Note that edgar also has this info 
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.c,manure-left-on-pasture,1,CH4,*** Need to discuss this -> will we fill with faostat? 
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.d,crop-residues,1,CH4,
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.f,drained-organic-soils,1,CH4,
-solid-waste-disposal,edgar,edgar,4.A,Solid Waste Disposal,1,CH4,
-biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B,Biological Treatment of Solid Waste,1,CH4,
-incineration-and-open-burning-of-waste,edgar,edgar,4.C,Incineration and Open Burning of Waste,1,CH4,
-wastewater-treatment-and-discharge,edgar,edgar,4.D,Wastewater Treatment and Discharge,1,CH4,
-other-energy-use,climate-trace,climate-trace,1.A.1.a.i; 1.A.1.a.ii,electricity-generation,-1,N2O,
-other-energy-use,edgar,edgar,1.A.1.a,Main Activity Electricity and Heat Production,1,N2O,
-railways,edgar,edgar,1.A.3.c ,Railways,1,N2O,
-road-transportation,edgar,edgar,1.A.3.b_noRES,Road Transportation no resuspension,1,N2O,
-other-transport,edgar,edgar,1.A.3.a,Civil Aviation,1,N2O,
-other-transport,edgar,edgar,1.A.3.d,Water-borne Navigation,1,N2O,
-other-transport,edgar,edgar,1.A.3.e,Other Transportation,1,N2O,
-other-transport,climate-trace,climate-trace,1.A.3.a,domestic-aviation,-1,N2O,
-other-transport,climate-trace,climate-trace,NUMBER,international-aviation,-1,N2O,
-residential-and-commercial-onsite-fuel-usage',edgar,edgar,1.A.4,Other Sectors,1,N2O,
-other-onsite-fuel-usage,edgar,edgar,1.A.5,Non-Specified,1,N2O,
-solid-fuel-transformation,edgar,edgar,1.B.1,Solid Fuels,1,N2O,
-solid-fuel-transformation,edgar,edgar,1.B.1.a,coal-mining,-1,N2O,
-other-fossil-fuel-operations,edgar,edgar,1.B.2,Oil and Natural Gas,1,N2O,
-other-fossil-fuel-operations,edgar,edgar,1.A.1.bc,Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1,N2O,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.i; 1.B.2.a.ii; 1.B.2.a.iii; 1.B.2.b.i; 1.B.2.b.ii; 1.B.2.c,oil-and-gas-production-and-transport,-1,N2O,
-other-fossil-fuel-operations,climate-trace,climate-trace,1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v,oil-and-gas-refining,-1,N2O,
-other-manufacturing,edgar,edgar,1.A.2,Manufacturing Industries and Construction,1,N2O,
-other-manufacturing,edgar,edgar,2.A.1,Cement production,1,N2O,
-other-manufacturing,edgar,edgar,2.A.2,Lime production,1,N2O,
-other-manufacturing,edgar,edgar,2.A.3 ,Glass Production,1,N2O,
-other-manufacturing,edgar,edgar,2.A.4,Other Process Uses of Carbonates,1,N2O,
-other-manufacturing,edgar,edgar,2.B,Chemical Industry,1,N2O,
-other-manufacturing,edgar,edgar,2.C,Metal Industry,1,N2O,
-other-manufacturing,edgar,edgar,2.D,Non-Energy Products from Fuels and Solvent Use,1,N2O,
-other-manufacturing,climate-trace,climate-trace,2.A.1; 1.A.2.f,cement,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.c; 2.B.1; 2.B.7,chemicals,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.a; 2.C.1,steel,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,2.C.3; 1.A.2.b,aluminum,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.d; 2.H.1,pulp-and-paper,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,bauxite-mining,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,copper-mining,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,iron-mining,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,rock-quarrying,-1,N2O,
-other-manufacturing,climate-trace,climate-trace,1.A.2.g.iii,sand-quarrying,-1,N2O,
-manure-management,faostat,faostat,3.B,manure-management,1,N2O,
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.c,manure-left-on-pasture,1,N2O,*** Need to discuss this -> will we fill with faostat? 
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.d,crop-residues,1,N2O,
-other-agricultural-soil-emissions,faostat,faostat,3.D.1.f,drained-organic-soils,1,N2O,
-biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B,Biological Treatment of Solid Waste,1,N2O,
-incineration-and-open-burning-of-waste,edgar,edgar,4.C,Incineration and Open Burning of Waste,1,N2O,
-wastewater-treatment-and-discharge,edgar,edgar,4.D,Wastewater Treatment and Discharge,1,N2O,
+sub-sector,inventory,sub_inventory,subinv_units,values
+other-energy-use,climate-trace,climate-trace,electricity-generation,-1
+other-energy-use,edgar,edgar,1.A.1.a Main Activity Electricity and Heat Production,1
+railways,edgar,edgar,1.A.3.c Railways,1
+road-transportation,edgar,edgar,1.A.3.b_noRES Road Transportation no resuspension,1
+other-transport,edgar,edgar,1.A.3.a Civil Aviation,1
+other-transport,edgar,edgar,1.A.3.d Water-borne Navigation,1
+other-transport,edgar,edgar,1.A.3.e Other Transportation,1
+other-transport,climate-trace,climate-trace,domestic-aviation,-1
+other-transport,climate-trace,climate-trace,international-aviation,-1
+residential-and-commercial-onsite-fuel-usage',edgar,edgar,1.A.4 Other Sectors,1
+other-onsite-fuel-usage,edgar,edgar,1.A.5 Non-Specified,1
+solid-fuel-transformation,edgar,edgar,1.B.1 Solid Fuels,1
+solid-fuel-transformation,climate-trace,climate-trace,coal-mining,-1
+other-fossil-fuel-operations,edgar,edgar,1.B.2 Oil and Natural Gas,1
+other-fossil-fuel-operations,edgar,edgar,1.A.1.bc Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1
+other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-production-and-transport,-1
+other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-refining,-1
+other-manufacturing,edgar,edgar,1.A.2 Manufacturing Industries and Construction,1
+other-manufacturing,edgar,edgar,2.A.1 Cement production,1
+other-manufacturing,edgar,edgar,2.A.2 Lime production,1
+other-manufacturing,edgar,edgar,2.A.3 Glass Production,1
+other-manufacturing,edgar,edgar,2.A.4 Other Process Uses of Carbonates,1
+other-manufacturing,edgar,edgar,2.B Chemical Industry,1
+other-manufacturing,edgar,edgar,2.C Metal Industry,1
+other-manufacturing,edgar,edgar,2.D Non-Energy Products from Fuels and Solvent Use,1
+other-manufacturing,climate-trace,climate-trace,cement,-1
+other-manufacturing,climate-trace,climate-trace,chemicals,-1
+other-manufacturing,climate-trace,climate-trace,steel,-1
+other-manufacturing,climate-trace,climate-trace,aluminum,-1
+other-manufacturing,climate-trace,climate-trace,pulp-and-paper,-1
+other-manufacturing,climate-trace,climate-trace,bauxite-mining,-1
+other-manufacturing,climate-trace,climate-trace,copper-mining,-1
+other-manufacturing,climate-trace,climate-trace,iron-mining,-1
+other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1
+other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1
+enteric-fermentation,faostat,faostat,enteric-fermentation,1
+manure-management,faostat,faostat,manure-management,1
+other-agricultural-soil-emissions,faostat,faostat,manure-left-on-pasture,1
+other-agricultural-soil-emissions,faostat,faostat,crop-residues,1
+other-agricultural-soil-emissions,faostat,faostat,drained-organic-soils,1
+solid-waste-disposal,edgar,edgar,4.A Solid Waste Disposal,1
+biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1
+incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1
+wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1
+flourinated-gases,edgar,edgar,2.B Chemical Industry,1
+flourinated-gases,edgar,edgar,2.C Metal Industry,1
+flourinated-gases,edgar,edgar,2.E Electronics Industry,1
+flourinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1
+flourinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1

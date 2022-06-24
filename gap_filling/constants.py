@@ -1,6 +1,6 @@
 import pandas as pd
 
-GF_SOURCE_DATA_COLUMNS = ['edgar', 'climate-trace']
+GF_SOURCE_DATA_COLUMNS = ['edgar','edgar-projected','climate-trace']
 GAP_EQUATIONS = pd.read_csv(r"gap_filling/data/gap_equations.csv")
 COMP_YEARS = [2020, 2019, 2018, 2017, 2016, 2015]
 COL_ORDER = ['Data source', 'Country', 'Sector', 'Gas', 'Unit'] + COMP_YEARS
