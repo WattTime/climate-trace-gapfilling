@@ -16,7 +16,7 @@ class ProjectEdgarData:
                                           "2.A.3 Glass Production",
                                           "4.D Wastewater Treatment and Discharge"]
 
-        self.source = "edgar"
+        self.source = "faostat"
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path
 
@@ -25,7 +25,7 @@ class ProjectEdgarData:
 
         # Number of years to project forward
         self.years_forward = np.array([1, 2, 3])
-        self.predicted_years = np.array([2019, 2020, 2021])
+        self.predicted_years = np.array([2020, 2021])
 
         # Regression training window (6 years total)
         self.regression_training_window = 6
@@ -102,8 +102,13 @@ class ProjectEdgarData:
     def project(self):
 
         # Apply regression to appropriate sectors for the dataframe with no missing data
-        df_regression_full = self._apply_regression(
-            self.full_df[self.full_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+        try:
+            df_regression_full = self._apply_regression(
+                self.full_df[self.full_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+            regression = True
+        except:
+            regression = False
+            pass
 
         # Apply forward fill to appropriate sectors for all partial or full data
         df_no_missing = pd.concat([self.full_df, self.some_missing_df], ignore_index=True)
@@ -113,7 +118,10 @@ class ProjectEdgarData:
         # Drop nans -- no need to write nans.
         df_baseline_results.dropna(subset=[DbColumns.VALUE], inplace=True)
 
-        df_projections = pd.concat([df_regression_full, df_baseline_results], ignore_index=True)
+        if regression:
+            df_projections = pd.concat([df_regression_full, df_baseline_results], ignore_index=True)
+        else:
+            df_projections = df_baseline_results
 
         return df_projections
 
