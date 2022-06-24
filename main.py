@@ -33,11 +33,13 @@ def process_all(args):
     ############################
     # Get the newly projected edgar data from db
     edgar_data = get_all_edgar_data(dh)
-    # # Get the CT data from db
+    # Get the CT data from db
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
+    # Get the FAOSTAT data from db
+    faostat_data = dh.load_data("faostat", years_to_columns=True)
 
-    # # Gap fill on projected data
-    concat_df = pd.concat([edgar_data, ct_data])
+    # Gap fill on projected data
+    concat_df = pd.concat([edgar_data, faostat_data, ct_data])
     df = prepare_df(concat_df)
     gap_filled_data = fill_all_sector_gaps(df)
 
