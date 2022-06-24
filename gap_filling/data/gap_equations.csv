@@ -34,11 +34,11 @@ other-manufacturing,climate-trace,climate-trace,copper-mining,-1
 other-manufacturing,climate-trace,climate-trace,iron-mining,-1
 other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1
 other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1
-enteric-fermentation,faostat,faostat,enteric-fermentation,1
-manure-management,faostat,faostat,manure-management,1
-other-agricultural-soil-emissions,faostat,faostat,manure-left-on-pasture,1
-other-agricultural-soil-emissions,faostat,faostat,crop-residues,1
-other-agricultural-soil-emissions,faostat,faostat,drained-organic-soils,1
+enteric-fermentation,faostat,faostat,Enteric Fermentation,1
+manure-management,faostat,faostat,Manure Management,1
+other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture,1
+other-agricultural-soil-emissions,faostat,faostat,Crop Residues,1
+other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1
 solid-waste-disposal,edgar,edgar,4.A Solid Waste Disposal,1
 biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1
