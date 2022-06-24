@@ -29,15 +29,19 @@ def fill_all_sector_gaps(input_df, ge=None):
     GE = GE.rename(columns={"sub_inventory": "Data source", "subinv_units": "Sector", "sub-sector": "to_be_gap_filled"})\
         .drop(columns="inventory")
     input_df = input_df.replace('edgar-projected', 'edgar')
+    input_df.to_csv('edgar.csv')
+
     # Merge in the values for the appropriate sector rows (including the sector to be gap filled)
     df_merge = input_df.merge(GE, how='right')
-    df_merge = df_merge.dropna(axis=0, subset=['Unit'])
+    df_merge = df_merge.dropna(axis=0, subset='Unit')
+    df_merge.to_csv('rightaftermerge.csv')
+    # df_merge = df_merge.dropna(axis=0, subset=['Unit'])
     if len(df_merge["Unit"].unique()) != 1:
         raise Exception("Cannot currently operate on values of different units!")
 
     # Multiply by the sign in the gap equations
     df_merge[COMP_YEARS] = df_merge[COMP_YEARS].multiply(df_merge['values'], axis=0)
-    df_merge.to_csv('justbeforegapfill.csv')
+
     # For each (Country, Gas, and sector to be gap filled) group, sum up all the corresponding values per year
     sectors_gap_filled = df_merge.groupby(["Country", "Gas", "to_be_gap_filled", "Unit"], as_index=False)[COMP_YEARS].sum()
     sectors_gap_filled.to_csv('gapfilled.csv')
