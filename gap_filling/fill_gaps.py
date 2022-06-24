@@ -25,7 +25,7 @@ def fill_all_sector_gaps(input_df, ge=None):
     else:
         GE = ge
 
-    GE = GE[GE['inventory'].isin(GF_SOURCE_DATA_COLUMNS)]  # Right now ignore FAOSTAT
+    GE = GE[GE['inventory'].isin(GF_SOURCE_DATA_COLUMNS)]
     GE = GE.rename(columns={"sub_inventory": "Data source", "subinv_units": "Sector", "sub-sector": "to_be_gap_filled"})\
         .drop(columns="inventory")
     input_df = input_df.replace('edgar-projected', 'edgar')

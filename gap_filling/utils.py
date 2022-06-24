@@ -170,7 +170,7 @@ def get_all_edgar_data(data_handler):
     expected_last_edgar_value_year = 2018
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
-    edgar_data = data_handler.load_data("edgar", years_to_columns=True)
+    edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)
     projected_edgar_data = data_handler.load_data("edgar-projected", years_to_columns=True)
 
     # TODO: Check to make sure there's no intersection of years across edgar and projected_edgar
