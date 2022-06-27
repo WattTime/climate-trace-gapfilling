@@ -38,7 +38,7 @@ def from_start_and_end_times_to_years(df):
 
 
 def transform_years_to_columns(df):
-    transformed_df = df.pivot(index=["Sector", "Country", "Data source", "Gas", "Unit"], columns='year',
+    transformed_df = df.pivot(index=["Sector", "Country", "ID", "Data source", "Gas", "Unit"], columns='year',
                               values='emission_quantity').reset_index()
     missing_years = [cy for cy in COMP_YEARS if cy not in transformed_df.columns]
 
@@ -48,7 +48,7 @@ def transform_years_to_columns(df):
 
 def transform_years_to_rows(df):
     transformed_df = pd.melt(df,
-                             id_vars=["Sector", "Country", "Data source", "Gas", "Unit"],
+                             id_vars=["Sector", "Country", "ID", "Data source", "Gas", "Unit"],
                              value_vars=COMP_YEARS,
                              var_name="year", value_name="emission_quantity")
 
@@ -110,7 +110,7 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     # Multiply by the appropriate co2e value
     merged_df[COMP_YEARS] = merged_df[COMP_YEARS].multiply(merged_df[col_to_mult], axis=0)
     # Sum up the multiplied numbers and return them
-    co2e_vals = merged_df.groupby(["Country", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
+    co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
     co2e_vals["Gas"] = col_to_mult
 
     return co2e_vals

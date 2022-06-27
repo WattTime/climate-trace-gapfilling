@@ -53,20 +53,20 @@ class DataHandler:
         curs = self.get_cursor()
 
         if gas is None:
-            curs.execute("SELECT original_inventory_sector, producing_entity_name, reporting_entity, "
+            curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
                          "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
                          "FROM ermin WHERE reporting_entity = %s AND start_time >= %s "
                          "AND carbon_equivalency_method IS NULL",
                          (source, start_date))
         else:
             if not is_co2e:
-                curs.execute("SELECT original_inventory_sector, producing_entity_name, reporting_entity, "
+                curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
                              "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
                              "FROM ermin WHERE reporting_entity = %s AND emitted_product_formula = %s "
                              "AND start_time >= %s AND carbon_equivalency_method IS NULL",
                              (source, gas, start_date))
             else:
-                curs.execute("SELECT original_inventory_sector, producing_entity_name, reporting_entity, "
+                curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
                              "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
                              "FROM ermin WHERE reporting_entity = %s AND emitted_product_formula = %s "
                              "AND start_time >= %s",
