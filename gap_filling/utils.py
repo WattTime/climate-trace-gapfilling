@@ -179,3 +179,18 @@ def get_all_edgar_data(data_handler):
     #     raise Exception("Intersecting years in the projected and base EDGAR data!!")
 
     return pd.concat([edgar_data, projected_edgar_data])
+
+
+def get_all_faostat_data(data_handler):
+    expected_last_faostat_value_year = 2019
+    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_faostat_value_year, COMP_YEARS, -1)
+    # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
+    faostat_data = data_handler.load_data("faostat",  gas=None, years_to_columns=True)
+    projected_faostat_data = data_handler.load_data("faostat-projected", years_to_columns=True)
+
+    # TODO: Check to make sure there's no intersection of years across edgar and projected_edgar
+    # np.unique(edgar_data[columns_to_check[:2]].values)
+    # if np.unique(checker) != np.nan:
+    #     raise Exception("Intersecting years in the projected and base EDGAR data!!")
+
+    return pd.concat([faostat_data, projected_faostat_data])
