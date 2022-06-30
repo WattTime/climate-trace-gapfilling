@@ -3,7 +3,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, get_iso3_code, \
+from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, \
     SECTORS
 
 
@@ -73,7 +73,7 @@ def parse_and_format_query_data(my_df, years_to_columns=True, rename_columns=Tru
 
 
 def parse_and_format_data_to_insert(my_df, do_melt=True, years_to_times=True, rename_columns=True,
-                                    add_iso=True, add_carbon_eq=True):
+                                    add_carbon_eq=True):
     # This function takes data from the gapfilling/projection code and puts it in the database format
 
     if do_melt:
@@ -87,10 +87,6 @@ def parse_and_format_data_to_insert(my_df, do_melt=True, years_to_times=True, re
     if rename_columns:
         # Rename columns in the data as appropriate
         my_df = rename_df_columns(my_df, db_like=True)
-
-    if add_iso:
-        # Add the iso3 code to this data for insertion
-        my_df = add_iso_value(my_df)
 
     if add_carbon_eq:
         # Make sure the carbon equivalency is in there for gap filled data
@@ -150,11 +146,6 @@ def add_carbon_eq_column(df):
 
     return df
 
-
-def add_iso_value(df):
-    df["producing_entity_id"] = [get_iso3_code(pen) for pen in df['producing_entity_name']]
-
-    return df
 
 
 def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df):

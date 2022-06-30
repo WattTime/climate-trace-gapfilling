@@ -2,11 +2,12 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from sklearn.linear_model import LinearRegression
 
 from gap_filling.data_handler import DataHandler
 from gap_filling.constants import DatabaseColumns as DbColumns
-from gap_filling.utils import from_years_to_start_and_end_times, add_iso_value
+from gap_filling.utils import from_years_to_start_and_end_times
 
 
 class ProjectEdgarData:
@@ -196,8 +197,8 @@ class ProjectEdgarData:
         # Add a few more columns to wrap up data projection
         df_projections[DbColumns.UNIT] = self.expected_emission_quantity_units
         df_projections[DbColumns.DATA_SOURCE] = f"{self.source}-projected"
+        df_projections[DbColumns.CREATED] = datetime.now().isoformat()
         df_projections = from_years_to_start_and_end_times(df_projections)
-        df_projections = add_iso_value(df_projections)
 
         return df_projections
 
