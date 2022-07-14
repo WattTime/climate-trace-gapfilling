@@ -52,7 +52,8 @@ def fill_all_sector_gaps(input_df, ge=None):
     sectors_gap_filled["Data source"] = "climate-trace"
     sectors_gap_filled["Country"] = [get_country_name(name) for name in sectors_gap_filled["ID"]]
     sectors_gap_filled["Created"] = datetime.now().isoformat()
-    sectors_gap_filled[COL_ORDER + "Created"].to_csv('/Users/leegans/Downloads/watttime/gapupdated.csv')
+    sectors_gap_filled.to_csv('20220630_gap_fill_before_clean.csv')
+    # sectors_gap_filled[COL_ORDER + "Created"].to_csv('/Users/leegans/Downloads/watttime/gapupdated.csv')
     new_ct_entries = data_cleaning(sectors_gap_filled)
 
-    return new_ct_entries[COL_ORDER + "Created"]
+    return new_ct_entries[COL_ORDER]

@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import time
 import numpy as np
 import pandas as pd
 import psycopg2 as pg2
@@ -90,6 +90,7 @@ class DataHandler:
 
     def write_data(self, data_to_insert, rows_type=None):
         # Two different kinds of inserts we'll need to perform here
+        data_to_insert['created_date'] = datetime.datetime.now().isoformat()
         if rows_type == "climate-trace":
             INSERT_MAPPING["cem"] = "carbon_equivalency_method"
             insert_str = "INSERT INTO ermin (original_inventory_sector, producing_entity_name, producing_entity_id, " \
@@ -108,6 +109,14 @@ class DataHandler:
 
         # According to the docs, executemany() is no faster than execute() in a loop, so running it in a loop
         for dti in data_to_insert.iterrows():
+            print(f'inserting row {dti[0]} out of {data_to_insert.shape[0]} for sector {data_to_insert.loc[dti[0], "original_inventory_sector"]}')
             data_row_dict = {k: dti[1][INSERT_MAPPING[k]] for k in INSERT_MAPPING.keys()}
-            curs.execute(insert_str, data_row_dict)
+            try:
+                curs.execute(insert_str, data_row_dict)
+            except Exception as e:
+                t = e.pgerror
+                if 'duplicate' in t.split(':')[1]:
+                    print('Duplicate encountered, skipping entry')
+                    continue
             self.conn.commit()
+

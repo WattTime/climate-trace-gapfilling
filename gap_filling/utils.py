@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, \
-    SECTORS
+    SECTORS, get_country_name
 
 
 def rename_df_columns(df, db_like=False):
@@ -106,7 +106,7 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     # Multiply by the appropriate co2e value
     merged_df[COMP_YEARS] = merged_df[COMP_YEARS].multiply(merged_df[col_to_mult], axis=0)
     # Sum up the multiplied numbers and return them
-    co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
+    co2e_vals = merged_df.groupby(["ID", "Country","Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
     co2e_vals["Gas"] = col_to_mult
 
     return co2e_vals
@@ -117,18 +117,20 @@ def add_all_gas_rows(df):
     df.dropna(subset=['Country'], inplace=True)
     # Set the individual indexes
     gases = ['co2', 'n2o', 'ch4', 'co2e_20', 'co2e_100']
-    multi_ind_col_list = ['Country', 'Sector', 'Gas']
+    multi_ind_col_list = ['ID', 'Sector', 'Gas']
     countries = df['Country'].unique()
+    ids = df['ID'].unique()
     sectors = np.unique(SECTORS)
 
     # Reindex to ensure every country, gas, sector, and year combination has a row
-    multi_index_all_years = pd.MultiIndex.from_product([countries, sectors, gases], names=multi_ind_col_list)
+    multi_index_all_years = pd.MultiIndex.from_product([ids, sectors, gases], names=multi_ind_col_list)
 
     print(f"Number of country-sector-gas combinations: {len(multi_index_all_years)}")
 
     df = df.set_index(multi_ind_col_list).reindex(multi_index_all_years, fill_value=np.nan).reset_index()
     df['Data source'] = 'climate-trace'
     df['Unit'] = 'tonnes'
+    df['Country'] = [get_country_name(name) for name in df['ID']]
 
     return df
 
