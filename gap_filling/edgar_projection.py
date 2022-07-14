@@ -2,11 +2,12 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from sklearn.linear_model import LinearRegression
 
 from gap_filling.data_handler import DataHandler
 from gap_filling.constants import DatabaseColumns as DbColumns
-from gap_filling.utils import from_years_to_start_and_end_times, add_iso_value
+from gap_filling.utils import from_years_to_start_and_end_times
 
 
 class ProjectEdgarData:
@@ -20,7 +21,7 @@ class ProjectEdgarData:
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path
 
-        self.group_list: List[str] = [DbColumns.COUNTRY, DbColumns.SECTOR, DbColumns.GAS]
+        self.group_list: List[str] = [DbColumns.ID, DbColumns.COUNTRY, DbColumns.SECTOR, DbColumns.GAS]
         self.group_list_with_year: List[str] = self.group_list + [DbColumns.YEAR]
 
         # Number of years to project forward
@@ -46,6 +47,7 @@ class ProjectEdgarData:
         # Before anything else, confirm the unit
         assert all(self.data[DbColumns.UNIT] == self.expected_emission_quantity_units), "Units must all be tonnes."
 
+        self.codes_list = self.data[DbColumns.ID].unique()
         self.country_list = self.data[DbColumns.COUNTRY].unique()
         self.sector_list = self.data[DbColumns.SECTOR].unique()
         self.gases_list = self.data[DbColumns.GAS].unique()
@@ -81,7 +83,7 @@ class ProjectEdgarData:
     def _reindex(self, index_date_range):
         # Reindex to ensure every country, gas, sector, and year combination has a row
         self.multi_index_all_years = pd.MultiIndex.from_product(
-            [self.country_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
+            [self.codes_list, self.country_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
 
         print(f"Number of country-sector-gas combinations: {len(self.multi_index_all_years)}")
 
@@ -195,8 +197,8 @@ class ProjectEdgarData:
         # Add a few more columns to wrap up data projection
         df_projections[DbColumns.UNIT] = self.expected_emission_quantity_units
         df_projections[DbColumns.DATA_SOURCE] = f"{self.source}-projected"
+        df_projections[DbColumns.CREATED] = datetime.now().isoformat()
         df_projections = from_years_to_start_and_end_times(df_projections)
-        df_projections = add_iso_value(df_projections)
 
         return df_projections
 

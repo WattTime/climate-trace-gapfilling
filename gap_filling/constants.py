@@ -13,7 +13,8 @@ DB_SOURCE_TO_COL_NAME = {"original_inventory_sector": "Sector",
                          "producing_entity_id": "ID",
                          "reporting_entity": "Data source",
                          "emitted_product_formula": "Gas",
-                         "emission_quantity_units": "Unit"
+                         "emission_quantity_units": "Unit",
+                         "created_date": "Created"
                          }
 
 COL_NAME_TO_DB_SOURCE = {"Sector": "original_inventory_sector",
@@ -21,7 +22,8 @@ COL_NAME_TO_DB_SOURCE = {"Sector": "original_inventory_sector",
                          "ID": "producing_entity_id",
                          "Data source": "reporting_entity",
                          "Gas": "emitted_product_formula",
-                         "Unit": "emission_quantity_units"
+                         "Unit": "emission_quantity_units",
+                         "Created": "created_date"
                          }
 
 
@@ -37,12 +39,7 @@ class DatabaseColumns:
     YEAR = "year"
     COUNT = "Data_count"
     PROJECTION_METHOD = "measurement_method_doi_or_url"
-
-def get_iso3_code(country_name):
-    if country_name not in CODE_CONVERSION['country_name'].values:
-        return None
-
-    return CODE_CONVERSION.loc[CODE_CONVERSION['country_name'] == country_name, 'iso3'].values[0]
+    CREATED = "created_date"
 
 
 def get_country_name(iso3):

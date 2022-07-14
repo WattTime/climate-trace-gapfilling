@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import time
 import numpy as np
 import pandas as pd
 import psycopg2 as pg2
@@ -10,7 +10,7 @@ from gap_filling.utils import parse_and_format_query_data
 INSERT_MAPPING = {"ois": "original_inventory_sector", "pen": "producing_entity_name",
                   "pei": "producing_entity_id", "re": "reporting_entity", "epf": "emitted_product_formula",
                   "eq": "emission_quantity", "equ": "emission_quantity_units",
-                  "st": "start_time", "et": "end_time"}
+                  "st": "start_time", "et": "end_time", "cd": "created_date"}
 
 
 def init_db_connect(params):
@@ -90,24 +90,33 @@ class DataHandler:
 
     def write_data(self, data_to_insert, rows_type=None):
         # Two different kinds of inserts we'll need to perform here
+        data_to_insert['created_date'] = datetime.datetime.now().isoformat()
         if rows_type == "climate-trace":
             INSERT_MAPPING["cem"] = "carbon_equivalency_method"
             insert_str = "INSERT INTO ermin (original_inventory_sector, producing_entity_name, producing_entity_id, " \
                          "reporting_entity, emitted_product_formula, emission_quantity, emission_quantity_units, " \
-                         "carbon_equivalency_method, start_time, end_time) " \
-                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(cem)s, %(st)s, %(et)s)"
+                         "carbon_equivalency_method, start_time, end_time, created_date) " \
+                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(cem)s, %(st)s, %(et)s, %(cd)s)"
 
         elif rows_type == "edgar":
             INSERT_MAPPING["mmd"] = "measurement_method_doi_or_url"
             insert_str = "INSERT INTO ermin (original_inventory_sector, producing_entity_name, producing_entity_id, " \
                          "reporting_entity, emitted_product_formula, emission_quantity, emission_quantity_units, " \
-                         "measurement_method_doi_or_url, start_time, end_time) " \
-                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(mmd)s, %(st)s, %(et)s)"
+                         "measurement_method_doi_or_url, start_time, end_time, created_date) " \
+                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(mmd)s, %(st)s, %(et)s, %(cd)s)"
 
         curs = self.get_cursor()
 
         # According to the docs, executemany() is no faster than execute() in a loop, so running it in a loop
         for dti in data_to_insert.iterrows():
+            print(f'inserting row {dti[0]} out of {data_to_insert.shape[0]} for sector {data_to_insert.loc[dti[0], "original_inventory_sector"]}')
             data_row_dict = {k: dti[1][INSERT_MAPPING[k]] for k in INSERT_MAPPING.keys()}
-            curs.execute(insert_str, data_row_dict)
+            try:
+                curs.execute(insert_str, data_row_dict)
+            except Exception as e:
+                t = e.pgerror
+                if 'duplicate' in t.split(':')[1]:
+                    print('Duplicate encountered, skipping entry')
+                    continue
             self.conn.commit()
+
