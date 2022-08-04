@@ -4,6 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 import psycopg2 as pg2
+import logging
 
 from gap_filling.utils import parse_and_format_query_data
 
@@ -73,8 +74,11 @@ class DataHandler:
                              (source, gas, start_date))
 
         colnames = [desc[0] for desc in curs.description]
-        return parse_and_format_query_data(pd.DataFrame(data=np.array(curs.fetchall()), columns=np.array(colnames)),
-                                           years_to_columns=years_to_columns, rename_columns=rename_columns)
+        data = np.array(curs.fetchall())
+        df = pd.DataFrame(data=data, columns=np.array(colnames))
+        df = parse_and_format_query_data(df, years_to_columns=years_to_columns, rename_columns=rename_columns)
+
+        return df
 
     def get_ghgs(self, f_gas=None):
         curs = self.get_cursor()
@@ -96,23 +100,70 @@ class DataHandler:
             return value_in_db == value_inserting
 
     def check_if_values_changed(self, data_row_dict):
-        cols = ['subsector', 'iso3_country', 'start_date', 'end_date', 'co2_emissions_tonnes', \
-                'ch4_emissions_tonnes', 'n2o_emissions_tonnes', 'total_co2e_100yrgwp', 'total_co2e_20yrgwp']
 
-        query = "SELECT subsector, iso3_country, start_date, end_date, co2_emissions_tonnes,\
-                ch4_emissions_tonnes, n2o_emissions_tonnes, total_co2e_100yrgwp, total_co2e_20yrgwp " \
-                "FROM stable_ct " \
-                "WHERE subsector = %(ois)s" \
-                "AND iso3_country = %(pei)s "  \
-                "AND start_date = %(st)s " \
-                "AND end_date = %(et)s"
+        cols = {'ois': 'original_inventory_sector',
+                'pen': 'producing_entity_name',
+                'pei': 'producing_entity_id',
+                're': 'reporting_entity',
+                'epf':'emitted_product_formula',
+                'eq': 'emission_quantity',
+                'equ': 'emission_quantity_units',
+                'st':'start_time',
+                'et': 'end_time',
+                'cd': 'created_date',
+                'mmd': 'measurement_method_doi_or_url',
+                'cem': 'carbon_equivalency_method'}
 
-        curs = self.get_cursor()
-        curs.execute(query, data_row_dict)
-        res = curs.fetchall()
+        data = {}
+        for key, value in data_row_dict.items():
+            full_key = cols[key]
+            data[full_key] = value
 
-        if len(res[0]) < 1:
-            return 'does not exist'
+        data_for_select = data.copy()
+        data_for_where = data.copy()
+        data_for_where.pop('created_date')
+        data_for_select.pop('created_date')
+        try:
+            data_for_where.pop('measurement_method_doi_or_url')
+            data_for_select.pop('measurement_method_doi_or_url')
+        except:
+            pass
+
+
+        select_cols = list(data_for_select.keys())
+        where_cols = list(data_for_where.keys())
+        # build query
+        query = "SELECT"
+        for i in range(len(select_cols)):
+            if i == 0:
+                query += f" {select_cols[i]}"
+            else:
+                query += f",{select_cols[i]}"
+
+        query += f" FROM ermin"
+        where_query = ''
+        for i in range(len(where_cols)):
+            if i == 0:
+                where_query += f" WHERE {where_cols[i]} = %({where_cols[i]})s"
+            else:
+                if data[where_cols[i]] == None:
+                    where_query += f" AND {where_cols[i]} IS NULL"
+                else:
+                    where_query += f" AND {where_cols[i]} = %({where_cols[i]})s"
+
+
+        query = query + where_query
+        cur = self.conn.cursor()
+        cur.execute(query, data)
+        res = cur.fetchall()
+
+        if len(res) < 1:
+            return None
+
+        res = res[0]
+
+        if len(res) < 1:
+            return None
 
         result_dict = {}
         i = 0
@@ -120,36 +171,34 @@ class DataHandler:
             result_dict[col] = res[0][i]
             i += 1
 
-        gas_in_insert_string = data_row_dict['epf']
-        if gas_in_insert_string.split('_')[0] == 'co2e':
-            cem = data_row_dict['cem']
-            value_in_db = result_dict[f'total_co2e_{cem.split("-")[0]}yrgwp']
-        else:
-            value_in_db = result_dict[f'{gas_in_insert_string}_emissions_tonnes']
+        matches = []
+        cols_to_update = []
+        for key, item in result_dict.items():
+            if key in ['start_time', 'end_time']:
+                continue
+            value_in_db = result_dict[key]
+            value_inserting = data_row_dict[key]
 
-        value_inserting = data_row_dict['eq']
-        match = self.compare_values(value_in_db, value_inserting)
+            match = self.compare_values(value_in_db, value_inserting)
+            matches.append(match)
+            if not match:
+                cols_to_update.append(key)
 
-        if match:
-            return match
-        if not match:
-            data_row_dict['neq'] = value_inserting
-            data_row_dict['md'] = datetime.datetime.now().isoformat()
-            update_str = "UPDATE ermin " \
-                         "SET emission_quantity = %(eq)s, modified_date = %(md)s" \
-                         "WHERE original_inventory_sector = %(ois)s" \
-                         "AND producing_entity_name = %(pen)s" \
-                         "AND producing_entity_id = %(pei)s" \
-                         "AND reporting_entity = %(re)s" \
-                         "AND emitted_product_formula = %(epf)s" \
-                         "AND carbon_equivalency_method = %(cem)s" \
-                         "AND start_time = %(st)s" \
-                         
-            curs = self.get_cursor()
-            curs.execute(update_str, data_row_dict)
+        if sum(matches) < len(matches):
+            logging.warn('Update required, updating record')
+            update_qry = f"UPDATE ermin SET"
+            for col in cols_to_update:
+                update_qry += f" {col} = %({col})s,"
+
+            update_qry += f" modified_date = %(modified_date)s"
+            update_qry += where_query
+            data['modified_date'] = datetime.datetime.now().isoformat()
+            cur = self.get_cursor()
+            cur.execute(update_qry, data)
             self.conn.commit()
-
-            return match
+            return True
+        else:
+            return False
 
     def write_data(self, data_to_insert, rows_type=None):
         # Two different kinds of inserts we'll need to perform here
@@ -176,7 +225,7 @@ class DataHandler:
             data_row_dict = {k: dti[1][INSERT_MAPPING[k]] for k in INSERT_MAPPING.keys()}
             match = self.check_if_values_changed(data_row_dict)
 
-            if match == 'does not exist':
+            if match is None:
                 pass
             else:
                 continue
