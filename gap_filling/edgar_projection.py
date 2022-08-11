@@ -21,7 +21,7 @@ class ProjectEdgarData:
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path
 
-        self.group_list: List[str] = [DbColumns.ID, DbColumns.COUNTRY, DbColumns.SECTOR, DbColumns.GAS]
+        self.group_list: List[str] = [DbColumns.ID, DbColumns.SECTOR, DbColumns.GAS]
         self.group_list_with_year: List[str] = self.group_list + [DbColumns.YEAR]
 
         # Number of years to project forward
@@ -47,8 +47,11 @@ class ProjectEdgarData:
         # Before anything else, confirm the unit
         assert all(self.data[DbColumns.UNIT] == self.expected_emission_quantity_units), "Units must all be tonnes."
 
+        # Drop the country column because we no longer need it, and keeping it was keeping duplicated data
+        # (China apparently has multiple country names)
+        self.data.drop(columns=[DbColumns.COUNTRY], inplace=True)
+
         self.codes_list = self.data[DbColumns.ID].unique()
-        self.country_list = self.data[DbColumns.COUNTRY].unique()
         self.sector_list = self.data[DbColumns.SECTOR].unique()
         self.gases_list = self.data[DbColumns.GAS].unique()
 
@@ -62,7 +65,7 @@ class ProjectEdgarData:
         # Remove duplicates
         self.data.drop_duplicates(inplace=True)
 
-        # Reindex to ensure every country, gas, sector, and year combination has a row
+        # Reindex to ensure every country ID, gas, sector, and year combination has a row
         self._reindex(index_date_range)
 
         # Add data counts (count of number of years with non nan data for
@@ -81,18 +84,18 @@ class ProjectEdgarData:
             drop=True)
 
     def _reindex(self, index_date_range):
-        # Reindex to ensure every country, gas, sector, and year combination has a row
+        # Reindex to ensure every country ID, gas, sector, and year combination has a row
         self.multi_index_all_years = pd.MultiIndex.from_product(
-            [self.codes_list, self.country_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
+            [self.codes_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
 
-        print(f"Number of country-sector-gas combinations: {len(self.multi_index_all_years)}")
+        print(f"Number of country_id-sector-gas combinations: {len(self.multi_index_all_years)}")
 
         self.data = self.data.set_index(self.group_list_with_year).reindex(
             self.multi_index_all_years, fill_value=np.nan).reset_index()
 
     def _add_data_counts(self):
         """
-        Count the number of data points in each x_ijk (unique country i, sector j, and gas k combination). If the number
+        Count the number of data points in each x_ijk (unique country ID i, sector j, and gas k combination). If the number
         of counts is equal to the length of the date range, then that means the particular x_ijk point has data for
         every year in the date range.
 
@@ -153,7 +156,7 @@ class ProjectEdgarData:
 
     def _apply_regression(self, df: pd.DataFrame):
         """
-        For each sector, country, and gas, train a regression model and use that regression model to predict the next 3
+        For each sector, country ID, and gas, train a regression model and use that regression model to predict the next 3
          years.
         Cannot contain any missing data during training years
         """
@@ -163,7 +166,7 @@ class ProjectEdgarData:
         for predict_year in self.predicted_years:
             df_training_data.loc[:, predict_year] = np.nan
 
-        # Group by country, sector, and gas and do projection
+        # Group by country ID, sector, and gas and do projection
         reg_results = df_training_data.groupby(self.group_list).apply(self._func_apply)
 
         # Drop columns with training data info
