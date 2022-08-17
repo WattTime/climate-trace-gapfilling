@@ -46,7 +46,7 @@ class ProjectData:
 
         # Preallocate empty data frames because I hate warning messages
         self.data = pd.DataFrame()
-        self.full_df = pd.DataFrame()
+        self.no_missing_df = pd.DataFrame()
         self.some_missing_df = pd.DataFrame()
         self.all_missing_df = pd.DataFrame()
 
@@ -62,12 +62,6 @@ class ProjectData:
         # (China apparently has multiple country names)
         self.data.drop(columns=[DbColumns.COUNTRY], inplace=True)
 
-        self.codes_list = self.data[DbColumns.ID].unique()
-        self.sector_list = self.data[DbColumns.SECTOR].unique()
-        self.gases_list = self.data[DbColumns.GAS].unique()
-
-        index_date_range = np.arange(self.start_training_year, self.end_training_year + 1)
-
         # Filter down to the specific training years
         training_interval_mask = (self.data[DbColumns.YEAR] >= self.start_training_year) & (
                 self.data[DbColumns.YEAR] <= self.end_training_year)
@@ -77,33 +71,20 @@ class ProjectData:
         # TODO ****** remove the subset; this is temporary
         self.data.drop_duplicates(subset=self.group_list_with_year, inplace=True)
 
-        # Reindex to ensure every country ID, gas, sector, and year combination has a row
-        self._reindex(index_date_range)
-
-        # Add data counts (count of number of years with non nan data for
+        # Add data counts (count of number of years with non nan data for each country id / sector / gas)
         self._add_data_counts()
 
         # Separate out data based on how much is missing
-        self.full_df = self.data[self.data[DbColumns.COUNT] == len(index_date_range)].sort_values(
+        self.no_missing_df = self.data[self.data[DbColumns.COUNT] == self.regression_training_window].sort_values(
             by=self.group_list_with_year).reset_index(drop=True)
 
-        self.some_missing_df = self.data[
-            (self.data[DbColumns.COUNT] > 0) & (self.data[DbColumns.COUNT] < len(index_date_range))].sort_values(
+        self.some_missing_df = self.data[(self.data[DbColumns.COUNT] > 0) & (
+                self.data[DbColumns.COUNT] < self.regression_training_window)].sort_values(
             by=self.group_list_with_year, ignore_index=True).reset_index(drop=True)
 
         self.all_missing_df = self.data[self.data[DbColumns.COUNT] == 0].sort_values(by=self.group_list_with_year,
                                                                                      ignore_index=True).reset_index(
             drop=True)
-
-    def _reindex(self, index_date_range):
-        # Reindex to ensure every country ID, gas, sector, and year combination has a row
-        self.multi_index_all_years = pd.MultiIndex.from_product(
-            [self.codes_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
-
-        print(f"Number of country_id-sector-gas combinations: {len(self.multi_index_all_years)}")
-
-        self.data = self.data.set_index(self.group_list_with_year).reindex(
-            self.multi_index_all_years, fill_value=np.nan).reset_index()
 
     def _add_data_counts(self):
         """
@@ -121,10 +102,10 @@ class ProjectData:
         # Apply regression to appropriate sectors for the dataframe with no missing data
         if self.sectors_to_use_regression is not None:
             df_regression_full = self._apply_regression(
-                self.full_df[self.full_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+                self.no_missing_df[self.no_missing_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
 
         # Apply forward fill to appropriate sectors for all partial or full data
-        df_no_missing = pd.concat([self.full_df, self.some_missing_df], ignore_index=True)
+        df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
         df_baseline_results = self._apply_baseline_forward_fill(
             df_no_missing[~df_no_missing[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
 
