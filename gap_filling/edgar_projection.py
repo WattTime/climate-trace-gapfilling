@@ -34,6 +34,9 @@ class ProjectData:
             self.years_forward = np.array([1, 2])
             self.predicted_years = np.array([2020, 2021])
 
+        else:
+            raise ValueError("Only 'edgar' and 'faostat' acceptable as inputs.")
+
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path
 
@@ -99,15 +102,20 @@ class ProjectData:
 
     def project(self):
 
-        # Apply regression to appropriate sectors for the dataframe with no missing data
         if self.sectors_to_use_regression is not None:
+            # Apply regression to appropriate sectors for the dataframe with no missing data
             df_regression_full = self._apply_regression(
                 self.no_missing_df[self.no_missing_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
 
-        # Apply forward fill to appropriate sectors for all partial or full data
-        df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
-        df_baseline_results = self._apply_baseline_forward_fill(
-            df_no_missing[~df_no_missing[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+            # Apply forward fill to appropriate sectors for all partial or full data
+            df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
+            df_baseline_results = self._apply_baseline_forward_fill(
+                df_no_missing[~df_no_missing[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+
+        else:
+            # Apply forward fill to all partial or full data
+            df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
+            df_baseline_results = self._apply_baseline_forward_fill(df_no_missing)
 
         # Drop nans -- no need to write nans.
         df_baseline_results.dropna(subset=[DbColumns.VALUE], inplace=True)
@@ -196,7 +204,7 @@ class ProjectData:
 
 
 if __name__ == "__main__":
-    proj_edgar = ProjectData(db_params_file_path="params.json")
+    proj_edgar = ProjectData(db_params_file_path="params.json", source="edgar")
     proj_edgar.load()
     proj_edgar.clean()
     df_projections = proj_edgar.project()
