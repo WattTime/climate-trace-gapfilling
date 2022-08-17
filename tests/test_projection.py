@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from gap_filling.edgar_projection import ProjectEdgarData
+from gap_filling.edgar_projection import ProjectData
 from gap_filling.constants import DatabaseColumns as DbColumns
 
 CO2 = "co2"
@@ -13,7 +13,7 @@ ONE_B = "1.B"
 
 
 def test_regression():
-    proj_edgar = ProjectEdgarData(db_params_file_path="no_needed")
+    proj_edgar = ProjectData(db_params_file_path="no_needed")
     proj_edgar.data = pd.read_csv("tests/data/sample_fake_data.csv")
     proj_edgar.sectors_to_use_regression = ["1.B"]
 
@@ -30,7 +30,7 @@ def test_regression():
 
 
 def test_baseline_forward_fill():
-    proj_edgar = ProjectEdgarData(db_params_file_path="no_needed")
+    proj_edgar = ProjectData(db_params_file_path="no_needed")
     proj_edgar.data = pd.read_csv("tests/data/sample_fake_data.csv")
     proj_edgar.sectors_to_use_regression = ["1.B"]
 
@@ -47,7 +47,7 @@ def test_baseline_forward_fill():
 
 
 def test_data_cleaning():
-    proj_edgar = ProjectEdgarData(db_params_file_path="no_needed")
+    proj_edgar = ProjectData(db_params_file_path="no_needed")
     proj_edgar.data = pd.read_csv("tests/data/sample_fake_data.csv")
     proj_edgar.sectors_to_use_regression = ["1.B"]
 
