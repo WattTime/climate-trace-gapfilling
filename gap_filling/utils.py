@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, \
-    SECTORS, get_country_name
+    SECTORS
 
 
 def rename_df_columns(df, db_like=False):
@@ -38,8 +38,10 @@ def from_start_and_end_times_to_years(df):
 
 
 def transform_years_to_columns(df):
-    transformed_df = df.pivot(index=["Sector", "Country", "ID", "Data source", "Gas", "Unit"], columns='year',
-                              values='emission_quantity').reset_index()
+    # TODO: MMB TO REMOVE - this is just a temporary workaround
+    df = df.drop_duplicates(subset=["Sector", "ID", "Data source", "Gas", "Unit", "year"], keep='first')
+    transformed_df = df.pivot(index=["Sector", "ID", "Data source", "Gas", "Unit"], columns='year',
+                              values='emissions_quantity').reset_index()
     missing_years = [cy for cy in COMP_YEARS if cy not in transformed_df.columns]
 
     transformed_df = transformed_df.reindex(columns=transformed_df.columns.tolist() + missing_years)
@@ -48,9 +50,9 @@ def transform_years_to_columns(df):
 
 def transform_years_to_rows(df):
     transformed_df = pd.melt(df,
-                             id_vars=["Sector", "Country", "ID", "Data source", "Gas", "Unit"],
+                             id_vars=["Sector", "ID", "Data source", "Gas", "Unit"],
                              value_vars=COMP_YEARS,
-                             var_name="year", value_name="emission_quantity")
+                             var_name="year", value_name="emissions_quantity")
 
     return transformed_df
 
@@ -88,9 +90,10 @@ def parse_and_format_data_to_insert(my_df, do_melt=True, years_to_times=True, re
         # Rename columns in the data as appropriate
         my_df = rename_df_columns(my_df, db_like=True)
 
-    if add_carbon_eq:
-        # Make sure the carbon equivalency is in there for gap filled data
-        my_df = add_carbon_eq_column(my_df)
+    # This is deprecated sine we are storing `co2e_20yr` and `co2e_100yr` in the gas column.
+    # if add_carbon_eq:
+    #     # Make sure the carbon equivalency is in there for gap filled data
+    #     my_df = add_carbon_eq_column(my_df)
 
     return my_df
 
@@ -106,19 +109,19 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     # Multiply by the appropriate co2e value
     merged_df[COMP_YEARS] = merged_df[COMP_YEARS].multiply(merged_df[col_to_mult], axis=0)
     # Sum up the multiplied numbers and return them
-    co2e_vals = merged_df.groupby(["ID", "Country","Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
-    co2e_vals["Gas"] = col_to_mult
+    co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
+    co2e_vals["Gas"] = col_to_mult + "yr"
 
     return co2e_vals
 
 
 def add_all_gas_rows(df):
-    # Drop rows with nas for country
-    df.dropna(subset=['Country'], inplace=True)
+    # Drop rows with nas for country id
+    df.dropna(subset=['ID'], inplace=True)
     # Set the individual indexes
     gases = ['co2', 'n2o', 'ch4', 'co2e_20', 'co2e_100']
     multi_ind_col_list = ['ID', 'Sector', 'Gas']
-    countries = df['Country'].unique()
+    # countries = df['Country'].unique()
     ids = df['ID'].unique()
     sectors = np.unique(SECTORS)
 
@@ -127,10 +130,10 @@ def add_all_gas_rows(df):
 
     print(f"Number of country-sector-gas combinations: {len(multi_index_all_years)}")
 
-    df = df.set_index(multi_ind_col_list).reindex(multi_index_all_years, fill_value=np.nan).reset_index()
+    df = df.set_index(multi_ind_col_list).reindex(multi_index_all_years, fill_value=0).reset_index()
     df['Data source'] = 'climate-trace'
     df['Unit'] = 'tonnes'
-    df['Country'] = [get_country_name(name) for name in df['ID']]
+    # df['Country'] = [get_country_name(name) for name in df['ID']]
 
     return df
 
@@ -140,10 +143,10 @@ def add_carbon_eq_column(df):
     cem_str = ['20-year', '100-year']
 
     # Build list of carbon equivalence strings
-    cem_list = [cem_str[cem_gases[g]] if g in cem_gases.keys() else "" for g in df['emitted_product_formula']]
+    cem_list = [cem_str[cem_gases[g]] if g in cem_gases.keys() else "" for g in df['gas']]
 
     # Change co2eq back
-    df.replace({'emitted_product_formula': {'co2e_20': 'co2e', 'co2e_100': 'co2e'}})
+    df.replace({'Gas': {'co2e_20': 'co2e', 'co2e_100': 'co2e'}})
     df['carbon_equivalency_method'] = cem_list
 
     return df
@@ -159,31 +162,27 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df):
     return final_df
 
 
-def get_all_edgar_data(data_handler):
+def get_all_edgar_data(data_handler, get_projected=False):
     expected_last_edgar_value_year = 2018
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
     edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return edgar_data
     projected_edgar_data = data_handler.load_data("edgar-projected", years_to_columns=True)
-
-    # TODO: Check to make sure there's no intersection of years across edgar and projected_edgar
-    # np.unique(edgar_data[columns_to_check[:2]].values)
-    # if np.unique(checker) != np.nan:
-    #     raise Exception("Intersecting years in the projected and base EDGAR data!!")
 
     return pd.concat([edgar_data, projected_edgar_data])
 
 
-def get_all_faostat_data(data_handler):
+def get_all_faostat_data(data_handler, get_projected=False):
     expected_last_faostat_value_year = 2019
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_faostat_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
     faostat_data = data_handler.load_data("faostat",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return faostat_data
     projected_faostat_data = data_handler.load_data("faostat-projected", years_to_columns=True)
-
-    # TODO: Check to make sure there's no intersection of years across edgar and projected_edgar
-    # np.unique(edgar_data[columns_to_check[:2]].values)
-    # if np.unique(checker) != np.nan:
-    #     raise Exception("Intersecting years in the projected and base EDGAR data!!")
 
     return pd.concat([faostat_data, projected_faostat_data])

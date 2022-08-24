@@ -7,9 +7,9 @@ import psycopg2 as pg2
 
 from gap_filling.utils import parse_and_format_query_data
 
-INSERT_MAPPING = {"ois": "original_inventory_sector", "pen": "producing_entity_name",
-                  "pei": "producing_entity_id", "re": "reporting_entity", "epf": "emitted_product_formula",
-                  "eq": "emission_quantity", "equ": "emission_quantity_units",
+INSERT_MAPPING = {"ois": "original_inventory_sector",
+                  "i3c": "iso3_country", "re": "reporting_entity", "g": "gas",
+                  "eq": "emissions_quantity", "equ": "emissions_quantity_units",
                   "st": "start_time", "et": "end_time", "cd": "created_date"}
 
 
@@ -53,22 +53,22 @@ class DataHandler:
         curs = self.get_cursor()
 
         if gas is None:
-            curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
-                         "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
-                         "FROM ermin WHERE reporting_entity = %s AND start_time >= %s "
-                         "AND carbon_equivalency_method IS NULL",
+            curs.execute("SELECT original_inventory_sector, reporting_entity, iso3_country, "
+                         "gas, emissions_quantity, emissions_quantity_units, start_time "
+                         "FROM country_emissions WHERE reporting_entity = %s AND start_time >= %s "
+                         "AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                          (source, start_date))
         else:
             if not is_co2e:
-                curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
-                             "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
-                             "FROM ermin WHERE reporting_entity = %s AND emitted_product_formula = %s "
-                             "AND start_time >= %s AND carbon_equivalency_method IS NULL",
+                curs.execute("SELECT original_inventory_sector, reporting_entity, "
+                             "gas, emissions_quantity, emissions_quantity_units, start_time "
+                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
+                             "AND start_time >= %s AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                              (source, gas, start_date))
             else:
-                curs.execute("SELECT original_inventory_sector, producing_entity_name, producing_entity_id, reporting_entity, "
-                             "emitted_product_formula, emission_quantity, emission_quantity_units, start_time "
-                             "FROM ermin WHERE reporting_entity = %s AND emitted_product_formula = %s "
+                curs.execute("SELECT original_inventory_sector, reporting_entity, "
+                             "gas, emissions_quantity, emissions_quantity_units, start_time "
+                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s",
                              (source, gas, start_date))
 
@@ -92,18 +92,19 @@ class DataHandler:
         # Two different kinds of inserts we'll need to perform here
         data_to_insert['created_date'] = datetime.datetime.now().isoformat()
         if rows_type == "climate-trace":
-            INSERT_MAPPING["cem"] = "carbon_equivalency_method"
-            insert_str = "INSERT INTO ermin (original_inventory_sector, producing_entity_name, producing_entity_id, " \
-                         "reporting_entity, emitted_product_formula, emission_quantity, emission_quantity_units, " \
-                         "carbon_equivalency_method, start_time, end_time, created_date) " \
-                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(cem)s, %(st)s, %(et)s, %(cd)s)"
+            #INSERT_MAPPING["cem"] = "carbon_equivalency_method"
+            insert_str = "INSERT INTO country_emissions (original_inventory_sector, iso3_country, " \
+                         "reporting_entity, gas, emissions_quantity, emissions_quantity_units, " \
+                         "start_time, end_time, created_date) " \
+                         "VALUES (%(ois)s, %(i3c)s, %(re)s, %(g)s, %(eq)s, %(equ)s, %(st)s, %(et)s, %(cd)s)"
 
+        # TODO: how do we store this data (the measurement method thing)?
         elif rows_type == "edgar":
             INSERT_MAPPING["mmd"] = "measurement_method_doi_or_url"
-            insert_str = "INSERT INTO ermin (original_inventory_sector, producing_entity_name, producing_entity_id, " \
-                         "reporting_entity, emitted_product_formula, emission_quantity, emission_quantity_units, " \
-                         "measurement_method_doi_or_url, start_time, end_time, created_date) " \
-                         "VALUES (%(ois)s, %(pen)s, %(pei)s, %(re)s, %(epf)s, %(eq)s, %(equ)s, %(mmd)s, %(st)s, %(et)s, %(cd)s)"
+            insert_str = "INSERT INTO country_emissions (original_inventory_sector, iso3_country, " \
+                         "reporting_entity, gas, emissions_quantity, emissions_quantity_units, " \
+                         "measurement_method_doi_or_url, start_time, end_time) " \
+                         "VALUES (%(ois)s, %(i3c)s, %(re)s, %(g)s, %(eq)s, %(equ)s, %(mmd)s, %(st)s, %(et)s)"
 
         curs = self.get_cursor()
 
