@@ -68,6 +68,10 @@ class ProjectData:
                 self.data[DbColumns.YEAR] <= self.end_training_year)
         self.data = self.data.loc[training_interval_mask].copy()
 
+        # Sort the data
+        self.data.sort_values(by=self.group_list_with_year, inplace=True)
+        self.data.reset_index(drop=True, inplace=True)  # Reset the index after sort
+
         # Add data counts (count of number of years with non nan data for each country id / sector / gas)
         self._add_data_counts()
 
