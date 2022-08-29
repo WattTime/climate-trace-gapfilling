@@ -44,28 +44,3 @@ def test_baseline_forward_fill():
     assert all(df_project.loc[(df_project[DbColumns.SECTOR] == ONE_A) &
                               (df_project[DbColumns.GAS] == N2O) &
                               (df_project[DbColumns.ID] == USA), DbColumns.VALUE] == 4.37)
-
-
-def test_data_cleaning():
-    proj_edgar = ProjectData(db_params_file_path="no_needed")
-    proj_edgar.data = pd.read_csv("tests/data/sample_fake_data.csv")
-    proj_edgar.sectors_to_use_regression = ["1.B"]
-
-    proj_edgar.clean()
-
-    # Expected size of data after expanding for every country, sector, gas combination + 6 years of data
-    assert proj_edgar.data.shape[0] == 48
-    # Double check the years included
-    assert proj_edgar.data[DbColumns.YEAR].min() == proj_edgar.start_training_year
-    assert proj_edgar.data[DbColumns.YEAR].max() == proj_edgar.end_training_year
-    # Check that a missing year was filled with nan
-    assert np.isnan(proj_edgar.data.loc[(proj_edgar.data[DbColumns.SECTOR] == ONE_A) &
-                                        (proj_edgar.data[DbColumns.GAS] == CO2) &
-                                        (proj_edgar.data[DbColumns.ID] == ECUADOR) &
-                                        (proj_edgar.data[DbColumns.YEAR] == 2013), DbColumns.VALUE].item())
-    # Check that a certain value remained unchanged
-    assert proj_edgar.data.loc[(proj_edgar.data[DbColumns.SECTOR] == ONE_A) &
-                               (proj_edgar.data[DbColumns.GAS] == N2O) &
-                               (proj_edgar.data[DbColumns.ID] == USA) &
-                               (proj_edgar.data[DbColumns.YEAR] == 2018), DbColumns.VALUE].item() == 4.37
-    assert proj_edgar.full_df.shape[0] == 18
