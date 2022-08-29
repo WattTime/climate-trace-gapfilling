@@ -1,4 +1,5 @@
 from typing import List
+import time
 
 import numpy as np
 import pandas as pd
@@ -10,34 +11,49 @@ from gap_filling.constants import DatabaseColumns as DbColumns
 from gap_filling.utils import from_years_to_start_and_end_times
 
 
-class ProjectEdgarData:
-    def __init__(self, db_params_file_path):
-        self.sectors_to_use_regression = ["1.A.1.a Main Activity Electricity and Heat Production",
-                                          "1.A.2 Manufacturing Industries and Construction",
-                                          "2.A.3 Glass Production",
-                                          "4.D Wastewater Treatment and Discharge"]
+class ProjectData:
+    def __init__(self, db_params_file_path, source: str = "edgar"):
+        self.source = source
+        self.sectors_to_use_regression = None
+        if self.source == "edgar":
+            # Sectors better suited for regression selected after thorough analysis of edgar data
+            self.sectors_to_use_regression = ["1.A.1.a Main Activity Electricity and Heat Production",
+                                              "1.A.2 Manufacturing Industries and Construction",
+                                              "2.A.3 Glass Production",
+                                              "4.D Wastewater Treatment and Discharge"]
+            self.do_regression = True  # True if sectors_to_use_regression is not None
+            # Last available year of data
+            self.end_training_year: int = 2018
+            # Number of years to project forward
+            self.years_forward = np.array([1, 2, 3])
+            self.predicted_years = np.array([2019, 2020, 2021])
 
-        self.source = "faostat"
+        elif self.source == "faostat":
+            self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
+            # Last available year of data
+            self.end_training_year: int = 2019
+            # Number of years to project forward
+            self.years_forward = np.array([1, 2])
+            self.predicted_years = np.array([2020, 2021])
+
+        else:
+            raise ValueError("Only 'edgar' and 'faostat' acceptable as inputs.")
+
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path
 
-        self.group_list: List[str] = [DbColumns.ID, DbColumns.COUNTRY, DbColumns.SECTOR, DbColumns.GAS]
+        self.group_list: List[str] = [DbColumns.ID, DbColumns.SECTOR, DbColumns.GAS]
         self.group_list_with_year: List[str] = self.group_list + [DbColumns.YEAR]
-
-        # Number of years to project forward
-        self.years_forward = np.array([1, 2, 3])
-        self.predicted_years = np.array([2020, 2021])
 
         # Regression training window (6 years total)
         self.regression_training_window = 6
-        self.end_training_year: int = 2018
         self.start_training_year: int = self.end_training_year - self.regression_training_window + 1
 
-        # Preallocate empty data frames because I hate warning messages
+        # Number of data points needed to perform regression
+        self.min_years_for_regression = 4
+
+        # Preallocate empty data frame because I hate warning messages
         self.data = pd.DataFrame()
-        self.full_df = pd.DataFrame()
-        self.some_missing_df = pd.DataFrame()
-        self.all_missing_df = pd.DataFrame()
 
     def load(self):
         dh = DataHandler(self.db_params_file)
@@ -47,12 +63,9 @@ class ProjectEdgarData:
         # Before anything else, confirm the unit
         assert all(self.data[DbColumns.UNIT] == self.expected_emission_quantity_units), "Units must all be tonnes."
 
-        self.codes_list = self.data[DbColumns.ID].unique()
-        self.country_list = self.data[DbColumns.COUNTRY].unique()
-        self.sector_list = self.data[DbColumns.SECTOR].unique()
-        self.gases_list = self.data[DbColumns.GAS].unique()
-
-        index_date_range = np.arange(self.start_training_year, self.end_training_year + 1)
+        # Drop the country column because we no longer need it, and keeping it was keeping duplicated data
+        # (China apparently has multiple country names)
+        self.data.drop(columns=[DbColumns.COUNTRY], inplace=True)
 
         # Filter down to the specific training years
         training_interval_mask = (self.data[DbColumns.YEAR] >= self.start_training_year) & (
@@ -60,39 +73,15 @@ class ProjectEdgarData:
         self.data = self.data.loc[training_interval_mask].copy()
 
         # Remove duplicates
-        self.data.drop_duplicates(inplace=True)
+        # TODO ****** remove the subset; this is temporary
+        self.data.drop_duplicates(subset=self.group_list_with_year, inplace=True)
 
-        # Reindex to ensure every country, gas, sector, and year combination has a row
-        self._reindex(index_date_range)
-
-        # Add data counts (count of number of years with non nan data for
+        # Add data counts (count of number of years with non nan data for each country id / sector / gas)
         self._add_data_counts()
-
-        # Separate out data based on how much is missing
-        self.full_df = self.data[self.data[DbColumns.COUNT] == len(index_date_range)].sort_values(
-            by=self.group_list_with_year).reset_index(drop=True)
-
-        self.some_missing_df = self.data[
-            (self.data[DbColumns.COUNT] > 0) & (self.data[DbColumns.COUNT] < len(index_date_range))].sort_values(
-            by=self.group_list_with_year, ignore_index=True).reset_index(drop=True)
-
-        self.all_missing_df = self.data[self.data[DbColumns.COUNT] == 0].sort_values(by=self.group_list_with_year,
-                                                                                     ignore_index=True).reset_index(
-            drop=True)
-
-    def _reindex(self, index_date_range):
-        # Reindex to ensure every country, gas, sector, and year combination has a row
-        self.multi_index_all_years = pd.MultiIndex.from_product(
-            [self.codes_list, self.country_list, self.sector_list, self.gases_list, index_date_range], names=self.group_list_with_year)
-
-        print(f"Number of country-sector-gas combinations: {len(self.multi_index_all_years)}")
-
-        self.data = self.data.set_index(self.group_list_with_year).reindex(
-            self.multi_index_all_years, fill_value=np.nan).reset_index()
 
     def _add_data_counts(self):
         """
-        Count the number of data points in each x_ijk (unique country i, sector j, and gas k combination). If the number
+        Count the number of data points in each x_ijk (unique country ID i, sector j, and gas k combination). If the number
         of counts is equal to the length of the date range, then that means the particular x_ijk point has data for
         every year in the date range.
 
@@ -103,24 +92,25 @@ class ProjectEdgarData:
 
     def project(self):
 
-        # Apply regression to appropriate sectors for the dataframe with no missing data
-        try:
-            df_regression_full = self._apply_regression(
-                self.full_df[self.full_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
-            regression = True
-        except:
-            regression = False
-            pass
+        if self.do_regression:
+            # Apply regression to appropriate sectors for the dataframe with no missing data
+            regr_mask = (self.data[DbColumns.SECTOR].isin(self.sectors_to_use_regression) &
+                         (self.data[DbColumns.COUNT] >= self.min_years_for_regression))
+            df_regression_full = self._apply_regression(self.data[regr_mask].copy())
 
-        # Apply forward fill to appropriate sectors for all partial or full data
-        df_no_missing = pd.concat([self.full_df, self.some_missing_df], ignore_index=True)
-        df_baseline_results = self._apply_baseline_forward_fill(
-            df_no_missing[~df_no_missing[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+            # Apply forward fill to data not used for regression and where there is at least one data point
+            ffill_mask = (~regr_mask & (self.data[DbColumns.COUNT] > 0))
+            df_baseline_results = self._apply_baseline_forward_fill(self.data[ffill_mask].copy())
+
+        else:
+            # Apply forward fill to all data with at least one data point
+            ffill_mask = (self.data[DbColumns.COUNT] > 0)
+            df_baseline_results = self._apply_baseline_forward_fill(self.data[ffill_mask].copy())
 
         # Drop nans -- no need to write nans.
         df_baseline_results.dropna(subset=[DbColumns.VALUE], inplace=True)
 
-        if regression:
+        if self.do_regression:
             df_projections = pd.concat([df_regression_full, df_baseline_results], ignore_index=True)
         else:
             df_projections = df_baseline_results
@@ -153,7 +143,7 @@ class ProjectEdgarData:
 
     def _apply_regression(self, df: pd.DataFrame):
         """
-        For each sector, country, and gas, train a regression model and use that regression model to predict the next 3
+        For each sector, country ID, and gas, train a regression model and use that regression model to predict the next 3
          years.
         Cannot contain any missing data during training years
         """
@@ -163,7 +153,7 @@ class ProjectEdgarData:
         for predict_year in self.predicted_years:
             df_training_data.loc[:, predict_year] = np.nan
 
-        # Group by country, sector, and gas and do projection
+        # Group by country ID, sector, and gas and do projection
         reg_results = df_training_data.groupby(self.group_list).apply(self._func_apply)
 
         # Drop columns with training data info
@@ -189,8 +179,8 @@ class ProjectEdgarData:
 
     @staticmethod
     def model(df, x_test):
-        y = df[[DbColumns.VALUE]].values
-        X = df[[DbColumns.YEAR]].values
+        y = df.loc[~df[DbColumns.VALUE].isna(), [DbColumns.VALUE]].values
+        X = df.loc[~df[DbColumns.VALUE].isna(), [DbColumns.YEAR]].values
         return np.squeeze(LinearRegression().fit(X, y).predict(x_test))
 
     def prepare_to_write(self, df_projections: pd.DataFrame):
@@ -204,7 +194,7 @@ class ProjectEdgarData:
 
 
 if __name__ == "__main__":
-    proj_edgar = ProjectEdgarData(db_params_file_path="params.json")
+    proj_edgar = ProjectData(db_params_file_path="params.json", source="edgar")
     proj_edgar.load()
     proj_edgar.clean()
     df_projections = proj_edgar.project()
