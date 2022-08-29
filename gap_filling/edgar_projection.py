@@ -63,18 +63,10 @@ class ProjectData:
         # Before anything else, confirm the unit
         assert all(self.data[DbColumns.UNIT] == self.expected_emission_quantity_units), "Units must all be tonnes."
 
-        # Drop the country column because we no longer need it, and keeping it was keeping duplicated data
-        # (China apparently has multiple country names)
-        self.data.drop(columns=[DbColumns.COUNTRY], inplace=True)
-
         # Filter down to the specific training years
         training_interval_mask = (self.data[DbColumns.YEAR] >= self.start_training_year) & (
                 self.data[DbColumns.YEAR] <= self.end_training_year)
         self.data = self.data.loc[training_interval_mask].copy()
-
-        # Remove duplicates
-        # TODO ****** remove the subset; this is temporary
-        self.data.drop_duplicates(subset=self.group_list_with_year, inplace=True)
 
         # Add data counts (count of number of years with non nan data for each country id / sector / gas)
         self._add_data_counts()
