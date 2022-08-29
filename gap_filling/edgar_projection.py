@@ -21,6 +21,7 @@ class ProjectData:
                                               "1.A.2 Manufacturing Industries and Construction",
                                               "2.A.3 Glass Production",
                                               "4.D Wastewater Treatment and Discharge"]
+            self.do_regression = True  # True if sectors_to_use_regression is not None
             # Last available year of data
             self.end_training_year: int = 2018
             # Number of years to project forward
@@ -28,6 +29,7 @@ class ProjectData:
             self.predicted_years = np.array([2019, 2020, 2021])
 
         elif self.source == "faostat":
+            self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
             # Last available year of data
             self.end_training_year: int = 2019
             # Number of years to project forward
@@ -47,11 +49,11 @@ class ProjectData:
         self.regression_training_window = 6
         self.start_training_year: int = self.end_training_year - self.regression_training_window + 1
 
-        # Preallocate empty data frames because I hate warning messages
+        # Number of data points needed to perform regression
+        self.min_years_for_regression = 4
+
+        # Preallocate empty data frame because I hate warning messages
         self.data = pd.DataFrame()
-        self.no_missing_df = pd.DataFrame()
-        self.some_missing_df = pd.DataFrame()
-        self.all_missing_df = pd.DataFrame()
 
     def load(self):
         dh = DataHandler(self.db_params_file)
@@ -77,18 +79,6 @@ class ProjectData:
         # Add data counts (count of number of years with non nan data for each country id / sector / gas)
         self._add_data_counts()
 
-        # Separate out data based on how much is missing
-        self.no_missing_df = self.data[self.data[DbColumns.COUNT] == self.regression_training_window].sort_values(
-            by=self.group_list_with_year).reset_index(drop=True)
-
-        self.some_missing_df = self.data[(self.data[DbColumns.COUNT] > 0) & (
-                self.data[DbColumns.COUNT] < self.regression_training_window)].sort_values(
-            by=self.group_list_with_year, ignore_index=True).reset_index(drop=True)
-
-        self.all_missing_df = self.data[self.data[DbColumns.COUNT] == 0].sort_values(by=self.group_list_with_year,
-                                                                                     ignore_index=True).reset_index(
-            drop=True)
-
     def _add_data_counts(self):
         """
         Count the number of data points in each x_ijk (unique country ID i, sector j, and gas k combination). If the number
@@ -102,25 +92,25 @@ class ProjectData:
 
     def project(self):
 
-        if self.sectors_to_use_regression is not None:
+        if self.do_regression:
             # Apply regression to appropriate sectors for the dataframe with no missing data
-            df_regression_full = self._apply_regression(
-                self.no_missing_df[self.no_missing_df[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+            regr_mask = (self.data[DbColumns.SECTOR].isin(self.sectors_to_use_regression) &
+                         (self.data[DbColumns.COUNT] >= self.min_years_for_regression))
+            df_regression_full = self._apply_regression(self.data[regr_mask].copy())
 
-            # Apply forward fill to appropriate sectors for all partial or full data
-            df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
-            df_baseline_results = self._apply_baseline_forward_fill(
-                df_no_missing[~df_no_missing[DbColumns.SECTOR].isin(self.sectors_to_use_regression)].copy())
+            # Apply forward fill to data not used for regression and where there is at least one data point
+            ffill_mask = (~regr_mask & (self.data[DbColumns.COUNT] > 0))
+            df_baseline_results = self._apply_baseline_forward_fill(self.data[ffill_mask].copy())
 
         else:
-            # Apply forward fill to all partial or full data
-            df_no_missing = pd.concat([self.no_missing_df, self.some_missing_df], ignore_index=True)
-            df_baseline_results = self._apply_baseline_forward_fill(df_no_missing)
+            # Apply forward fill to all data with at least one data point
+            ffill_mask = (self.data[DbColumns.COUNT] > 0)
+            df_baseline_results = self._apply_baseline_forward_fill(self.data[ffill_mask].copy())
 
         # Drop nans -- no need to write nans.
         df_baseline_results.dropna(subset=[DbColumns.VALUE], inplace=True)
 
-        if self.sectors_to_use_regression is not None:
+        if self.do_regression:
             df_projections = pd.concat([df_regression_full, df_baseline_results], ignore_index=True)
         else:
             df_projections = df_baseline_results
@@ -189,8 +179,8 @@ class ProjectData:
 
     @staticmethod
     def model(df, x_test):
-        y = df[[DbColumns.VALUE]].values
-        X = df[[DbColumns.YEAR]].values
+        y = df.loc[~df[DbColumns.VALUE].isna(), [DbColumns.VALUE]].values
+        X = df.loc[~df[DbColumns.VALUE].isna(), [DbColumns.YEAR]].values
         return np.squeeze(LinearRegression().fit(X, y).predict(x_test))
 
     def prepare_to_write(self, df_projections: pd.DataFrame):
