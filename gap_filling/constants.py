@@ -35,7 +35,7 @@ class DatabaseColumns:
     SECTOR = "original_inventory_sector"
     GAS = "gas"
     UNIT = "emissions_quantity_units"
-    VALUE = "emission_quantity"
+    VALUE = "emissions_quantity"
     YEAR = "year"
     COUNT = "Data_count"
     PROJECTION_METHOD = "measurement_method_doi_or_url"
