@@ -30,11 +30,11 @@ COL_NAME_TO_DB_SOURCE = {"Sector": "original_inventory_sector",
 class DatabaseColumns:
     # Class Alex used to reference new column names
     COUNTRY = "producing_entity_name"
-    ID = "producing_entity_id"
+    ID = "iso3_country"
     DATA_SOURCE = "reporting_entity"
     SECTOR = "original_inventory_sector"
-    GAS = "emitted_product_formula"
-    UNIT = "emission_quantity_units"
+    GAS = "gas"
+    UNIT = "emissions_quantity_units"
     VALUE = "emission_quantity"
     YEAR = "year"
     COUNT = "Data_count"
