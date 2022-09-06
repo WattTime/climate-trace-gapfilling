@@ -1,5 +1,7 @@
 import datetime
 import json
+import logging
+
 import time
 import numpy as np
 import pandas as pd
@@ -87,6 +89,73 @@ class DataHandler:
 
         colnames = [desc[0] for desc in curs.description]
         return pd.DataFrame(data=np.array(curs.fetchall()), columns=colnames)
+
+    def insert_with_update(self, e_data, table):
+        data_dict = e_data.to_dict('records')
+        with self.get_cursor() as cur:
+            cs = 1000
+            for i in range(0, len(data_dict), cs):
+                logging.warning(f'inserting row {i} of {len(data_dict)}')
+                data = data_dict[i:i+cs]
+                vals = []
+
+                for d in data:
+                    vshort = ()
+                    for k in d.keys():
+                        vshort += (d[k],)
+                    vals.append(vshort)
+
+                base_select = data[0].copy()
+                base_where = data[0].copy()
+                base_and = data[0].copy()
+
+                for x in ['created_date']:
+                    base_select.pop(x)
+
+                for x in ['created_date', 'emissions_quantity']:
+                    base_where.pop(x)
+
+                for x in ['created_date']:
+                    base_and.pop('created_date')
+
+                set_statement = ""
+                for d, v in data[0].items():
+                    if d == 'created_date':
+                        continue
+                    set_statement += f" {d} = excluded.{d},"
+                set_statement += f" modified_date = NOW()"
+
+                # build where statement
+                where_statement = ""
+                for d, v in base_where.items():
+                    if d == 'location':
+                        where_statement += f" ST_AsText({table}.{d}) = ST_AsText(excluded.{d}) AND"
+                    else:
+                        where_statement += f" {table}.{d} = excluded.{d} AND"
+                where_statement = where_statement[:-3]
+
+                # build and statement
+                and_statement = "("
+                for d, v in base_and.items():
+                    if d == 'location':
+                        and_statement += f" ST_AsText({table}.{d}) != ST_AsText(excluded.{d}) OR"
+                    elif d == 'emissions_quantity':
+                        and_statement += f" coalesce({table}.{d}, 0.0) != excluded.{d} OR"
+                    else:
+                        and_statement += f" {table}.{d} != excluded.{d} OR"
+                and_statement = and_statement[:-2] + ')'
+
+                sss = ','.join('%s' for s in range(len(list(data[0].keys()))))
+                args_str = ','.join(cur.mogrify(f"({sss})", x).decode("utf-8") for x in vals)
+                insert_str = f"""INSERT INTO {table} ({','.join(data[0].keys())})
+                                                 VALUES {args_str}
+                                                 ON CONFLICT ON CONSTRAINT country_duplicates DO UPDATE 
+                                                 SET {set_statement}
+                                                 WHERE {where_statement}
+                                                 AND {and_statement}
+                                         """
+                cur.execute(insert_str, vals)
+                self.conn.commit()
 
     def write_data(self, data_to_insert, rows_type=None):
         # Two different kinds of inserts we'll need to perform here

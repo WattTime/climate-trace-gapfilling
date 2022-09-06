@@ -35,9 +35,9 @@ def fill_all_sector_gaps(input_df, ge=None):
 
     # Merge in the values for the appropriate sector rows (including the sector to be gap filled)
     df_merge = input_df.merge(GE, how='right')
-    df_merge = df_merge.dropna(axis=0, subset='Unit')
+    # df_merge = df_merge.dropna(axis=0, subset='Unit')
 
-    # df_merge = df_merge.dropna(axis=0, subset=['Unit'])
+    df_merge = df_merge.dropna(axis=0, subset=['Unit'])
     if len(df_merge["Unit"].unique()) != 1:
         raise Exception("Cannot currently operate on values of different units!")
 

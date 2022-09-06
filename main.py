@@ -1,4 +1,5 @@
 import argparse
+import datetime
 
 import pandas as pd
 
@@ -26,7 +27,9 @@ def process_all(args):
     df_projections = proj_edgar.project()
     df_projections_final = proj_edgar.prepare_to_write(df_projections)
     # Write results to the DB
-    # dh.write_data(data_to_insert=df_projections_final, rows_type='edgar')
+    df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
+    # dh.insert_with_update(df_projections_final, 'country_emissions')
+
 
     ############################
     # Fill Gaps
@@ -52,8 +55,10 @@ def process_all(args):
 
     # These data need to undergo a transformation before we can insert them into the db
     data_to_insert = parse_and_format_data_to_insert(assembled_df)
+    data_to_insert['created_date'] = datetime.datetime.now().isoformat()
     # Write results to the DB
-    dh.write_data(data_to_insert, rows_type='climate-trace')
+    dh.insert_with_update(data_to_insert, 'country_emissions')
+    # dh.write_data(data_to_insert, rows_type='climate-trace')
 
 
 if __name__ == "__main__":

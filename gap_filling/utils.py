@@ -119,7 +119,7 @@ def add_all_gas_rows(df):
     # Drop rows with nas for country id
     df.dropna(subset=['ID'], inplace=True)
     # Set the individual indexes
-    gases = ['co2', 'n2o', 'ch4', 'co2e_20', 'co2e_100']
+    gases = ['co2', 'n2o', 'ch4', 'co2e_20yr', 'co2e_100yr']
     multi_ind_col_list = ['ID', 'Sector', 'Gas']
     # countries = df['Country'].unique()
     ids = df['ID'].unique()
