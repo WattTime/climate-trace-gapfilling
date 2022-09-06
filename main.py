@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 
 from gap_filling.data_handler import DataHandler
-from gap_filling.edgar_projection import ProjectEdgarData
+from gap_filling.edgar_projection import ProjectData
 from gap_filling.fill_gaps import fill_all_sector_gaps, prepare_df
 from gap_filling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, get_all_faostat_data, generate_carbon_equivalencies,
                                assemble_data)
@@ -20,7 +20,7 @@ def process_all(args):
     # Project Data
     ############################
     # Project the Edgar Data
-    proj_edgar = ProjectEdgarData(db_params_file_path=args.params_file)
+    proj_edgar = ProjectData(db_params_file_path=args.params_file)
     proj_edgar.load()
     proj_edgar.clean()
     df_projections = proj_edgar.project()

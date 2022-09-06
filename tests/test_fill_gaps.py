@@ -13,15 +13,15 @@ def test_fill_all_sector_gaps_with_nan_return():
              ["other-fossil-fuel-operations","climate-trace","climate-trace","1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v","oil-and-gas-refining",-1,"co2",None]]
     test_ge = pd.DataFrame(data=ge_td, columns=ge_tc)
 
-    tc = ["Country", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
-    td = [["United States of America", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 100, 100, 100, 100, 100, 100],
-          ["United States of America", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "edgar", "Oil and Natural Gas", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 10, 10, 10, 10, 10, 10]]
+    tc = ["ID", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
+    td = [["USA", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 100, 100, 100, 100, 100, 100],
+          ["USA", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "edgar", "Oil and Natural Gas", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 10, 10, 10, 10, 10, 10]]
     test_df = pd.DataFrame(data=td, columns=tc)
     result_df = fill_all_sector_gaps(test_df, ge=test_ge)
 
-    truth_data = [["United States of America", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]]
+    truth_data = [["USA", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]]
     expected_df = pd.DataFrame(data=truth_data, columns=tc)[COL_ORDER]
 
     assert_frame_equal(expected_df, result_df)
@@ -34,15 +34,15 @@ def test_fill_all_sector_gaps_with_zero_return():
              ["other-fossil-fuel-operations","climate-trace","climate-trace","1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v","oil-and-gas-refining",-1,"co2",None]]
     test_ge = pd.DataFrame(data=ge_td, columns=ge_tc)
 
-    tc = ["Country", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
-    td = [["United States of America", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "edgar", "Oil and Natural Gas", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 10, 10, 10, 10, 10, 10]]
+    tc = ["ID", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
+    td = [["USA", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "edgar", "Oil and Natural Gas", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 10, 10, 10, 10, 10, 10]]
     test_df = pd.DataFrame(data=td, columns=tc)
     result_df = fill_all_sector_gaps(test_df, ge=test_ge)
 
-    truth_data = [["United States of America", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+    truth_data = [["USA", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
     expected_df = pd.DataFrame(data=truth_data, columns=tc)[COL_ORDER]
 
     assert assert_frame_equal(expected_df, result_df) is None
@@ -56,14 +56,14 @@ def test_fill_all_sector_gaps_with_good_return():
              ["other-fossil-fuel-operations","climate-trace","climate-trace","1.B.2.a.iv; 1.B.2.a.v; 1.B.2.b.iii; 1.B.2.b.v","oil-and-gas-refining",-1,"co2",None]]
     test_ge = pd.DataFrame(data=ge_td, columns=ge_tc)
 
-    tc = ["Country", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
-    td = [["United States of America", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
-          ["United States of America", "co2", "edgar", "Oil and Natural Gas", "tonnes", 110, 110, 110, 110, 110, 110],
-          ["United States of America", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 110, 110, 110, 110, 110, 110]]
+    tc = ["ID", "Gas", "Data source", "Sector", "Unit", 2015, 2016, 2017, 2018, 2019, 2020]
+    td = [["USA", "co2", "climate-trace", "oil-and-gas-production-and-transport", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "climate-trace", "oil-and-gas-refining", "tonnes", 10, 10, 10, 10, 10, 10],
+          ["USA", "co2", "edgar", "Oil and Natural Gas", "tonnes", 110, 110, 110, 110, 110, 110],
+          ["USA", "co2", "edgar", "Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries", "tonnes", 110, 110, 110, 110, 110, 110]]
     test_df = pd.DataFrame(data=td, columns=tc)
 
-    truth_data = [["United States of America", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]]
+    truth_data = [["USA", "co2", "climate-trace", "other-fossil-fuel-operations", "tonnes", 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]]
 
     expected_df = pd.DataFrame(data=truth_data, columns=tc)[COL_ORDER]
     result_df = fill_all_sector_gaps(test_df, ge=test_ge)
