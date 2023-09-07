@@ -15,13 +15,13 @@ def process_all(args):
     # Get the data
     ############################
     # Init the Data Handler
-    dh = DataHandler(args.params_file)
+    dh = DataHandler()
 
     ############################
     # Project Data
     ############################
     # Project the Edgar Data
-    proj_edgar = ProjectData(db_params_file_path=args.params_file)
+    proj_edgar = ProjectData(db_params_file_path=args.params_file, source="faostat")
     proj_edgar.load()
     proj_edgar.clean()
     df_projections = proj_edgar.project()
@@ -35,11 +35,11 @@ def process_all(args):
     # Fill Gaps
     ############################
     # Get the newly projected edgar data from db
-    edgar_data = get_all_edgar_data(dh)
+    edgar_data = get_all_edgar_data(dh, get_projected=False)
     # Get the CT data from db
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
     # Get the FAOSTAT data from db
-    faostat_data = get_all_faostat_data(dh)
+    faostat_data = get_all_faostat_data(dh, get_projected=True)
 
     # Gap fill on projected data
     concat_df = pd.concat([edgar_data, faostat_data, ct_data])
@@ -57,7 +57,7 @@ def process_all(args):
     data_to_insert = parse_and_format_data_to_insert(assembled_df)
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
     # Write results to the DB
-    dh.insert_with_update(data_to_insert, 'country_emissions')
+    # dh.insert_with_update(data_to_insert, 'country_emissions')
     # dh.write_data(data_to_insert, rows_type='climate-trace')
 
 

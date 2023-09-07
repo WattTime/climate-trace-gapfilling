@@ -6,6 +6,7 @@ import time
 import numpy as np
 import pandas as pd
 import psycopg2 as pg2
+import os
 
 from gap_filling.utils import parse_and_format_query_data
 
@@ -15,32 +16,27 @@ INSERT_MAPPING = {"ois": "original_inventory_sector",
                   "st": "start_time", "et": "end_time", "cd": "created_date"}
 
 
-def init_db_connect(params):
-    try:
-        conn = pg2.connect(user=params['db_user'],
-                           password=params['db_pass'],
-                           host="rds-climate-trace.watttime.org",
-                           database="climatetrace")
-    except Exception as e:
-        print(e)
-        raise Exception(e)
+def init_db_connect():
 
-    # Double check in case somehow there was a silent error or issue
-    if not conn:
-        raise ConnectionError("Initializing the database connection failed!")
+    pghost = os.getenv("CLIMATETRACE_HOST", "127.0.0.1")
+    pguser = os.getenv("CLIMATETRACE_USER", "chromacloud")
+    pgpass = os.getenv("CLIMATETRACE_PASS")
+    pgport = os.getenv("CLIMATETRACE_PORT", "5432")
+    pgdb = os.getenv("CLIMATETRACE_DB")
+    con_str = f"host='{pghost}' dbname='{pgdb}' user='{pguser}' password='{pgpass}' port='{pgport}'"
+    conn = pg2.connect(con_str)
+
     return conn
 
 
 class DataHandler:
-    def __init__(self, params_file='params.json'):
-        self.params_file = params_file
+    def __init__(self):
+        self.conn = init_db_connect()
 
-        self.conn = init_db_connect(self.get_params())
-
-    def get_params(self):
-        with open(self.params_file, 'r') as fid:
-            params = json.load(fid)
-        return params
+    # def get_params(self):
+    #     with open(self.params_file, 'r') as fid:
+    #         params = json.load(fid)
+    #     return params
 
     def get_cursor(self):
         if not self.conn:
@@ -75,7 +71,9 @@ class DataHandler:
                              (source, gas, start_date))
 
         colnames = [desc[0] for desc in curs.description]
-        return parse_and_format_query_data(pd.DataFrame(data=np.array(curs.fetchall()), columns=np.array(colnames)),
+        data = np.array(curs.fetchall())
+        df = pd.DataFrame(data=data, columns=np.array(colnames))
+        return parse_and_format_query_data(df,
                                            years_to_columns=years_to_columns, rename_columns=rename_columns)
 
     def get_ghgs(self, f_gas=None):

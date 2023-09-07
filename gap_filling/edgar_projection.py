@@ -26,7 +26,7 @@ class ProjectData:
             self.end_training_year: int = 2018
             # Number of years to project forward
             self.years_forward = np.array([1, 2, 3])
-            self.predicted_years = np.array([2019, 2020, 2021])
+            self.predicted_years = np.array([2019, 2020, 2021, 2022])
 
         elif self.source == "faostat":
             self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
@@ -56,7 +56,7 @@ class ProjectData:
         self.data = pd.DataFrame()
 
     def load(self):
-        dh = DataHandler(self.db_params_file)
+        dh = DataHandler()
         self.data = dh.load_data(self.source, rename_columns=False)
 
     def clean(self):

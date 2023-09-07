@@ -163,7 +163,7 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df):
 
 
 def get_all_edgar_data(data_handler, get_projected=False):
-    expected_last_edgar_value_year = 2018
+    expected_last_edgar_value_year = 2021
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
     edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)

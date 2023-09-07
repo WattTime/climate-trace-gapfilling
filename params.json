@@ -1,6 +1,7 @@
 {
-  "db_user": "",
-  "db_pass":"",
-  "host":"rds-climate-trace.watttime.org",
+  "db_user": "clewis",
+  "db_pass":"LUZnAQp8OCEaCpnU5Oy1",
+  "host":"127.0.0.1",
+  "port": '5678',
   "database":"climatetrace"
 }
