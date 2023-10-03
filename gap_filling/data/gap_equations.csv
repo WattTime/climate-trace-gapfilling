@@ -20,6 +20,8 @@ other-manufacturing,edgar,edgar,2.A.4 Other Process Uses of Carbonates,1,co2
 other-manufacturing,edgar,edgar,2.B Chemical Industry,1,co2
 other-manufacturing,edgar,edgar,2.C Metal Industry,1,co2
 other-manufacturing,edgar,edgar,2.D Non-Energy Products from Fuels and Solvent Use,1,co2
+other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,co2
+other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,co2
 other-manufacturing,climate-trace,climate-trace,cement,-1,co2
 other-manufacturing,climate-trace,climate-trace,chemicals,-1,co2
 other-manufacturing,climate-trace,climate-trace,steel,-1,co2
@@ -30,13 +32,16 @@ other-manufacturing,climate-trace,climate-trace,copper-mining,-1,co2
 other-manufacturing,climate-trace,climate-trace,iron-mining,-1,co2
 other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1,co2
 other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1,co2
-enteric-fermentation,faostat,faostat,Enteric Fermentation,1,co2
-manure-management,faostat,faostat,Manure Management,1,co2
+enteric-fermentation-other,faostat,faostat,Enteric Fermentation,1,co2
+enteric-fermentation-other,climate-trace,climate-trace,enteric-fermentation-cattle-feedlot,-1,co2
+enteric-fermentation-other,climate-trace,climate-trace,enteric-fermentation-cattle-pasture,-1,co2
+manure-management-other,faostat,faostat,Manure Management,1,co2
+manure-management-other,climate-trace,climate-trace,manure-management-cattle-feedlot,-1,co2
 other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture,1,co2
 other-agricultural-soil-emissions,faostat,faostat,Crop Residues,1,co2
 other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1,co2
-solid-waste-disposal,edgar,edgar,4.A Solid Waste Disposal,1,co2
-biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,co2
+other-agricultural-soil-emissions,faostat,faostat,Manure applied to Soils,1,co2
+other-agricultural-soil-emissions,climate-trace,climate-trace,manure-left-on-pasture-cattle,-1,co2
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,co2
 wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1,co2
 other-energy-use,climate-trace,climate-trace,electricity-generation,-1,ch4
@@ -52,6 +57,7 @@ other-fossil-fuel-operations,edgar,edgar,1.B.2 Oil and Natural Gas,1,ch4
 other-fossil-fuel-operations,edgar,edgar,1.A.1.bc Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1,ch4
 other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-production-and-transport,-1,ch4
 other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-refining,-1,ch4
+other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,ch4
 other-manufacturing,edgar,edgar,1.A.2 Manufacturing Industries and Construction,1,ch4
 other-manufacturing,edgar,edgar,2.A.1 Cement production,1,ch4
 other-manufacturing,edgar,edgar,2.A.2 Lime production,1,ch4
@@ -70,12 +76,17 @@ other-manufacturing,climate-trace,climate-trace,copper-mining,-1,ch4
 other-manufacturing,climate-trace,climate-trace,iron-mining,-1,ch4
 other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1,ch4
 other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1,ch4
-enteric-fermentation,faostat,faostat,Enteric Fermentation,1,ch4
-manure-management,faostat,faostat,Manure Management,1,ch4
-other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture,1,ch4
+other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,ch4
+other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,ch4
+enteric-fermentation-other,faostat,faostat,Enteric Fermentation,1,ch4
+enteric-fermentation-other,climate-trace,climate-trace,enteric-fermentation-cattle-feedlot,-1,ch4
+manure-management-other,faostat,faostat,Manure Management,1,ch4
+manure-management-other,climate-trace,climate-trace,manure-management-cattle-feedlot,-1,ch4
+manure-management-other,faostat,faostat,Manure applied to Soils,1,ch4
+manure-management-other,climate-trace,climate-trace,manure-left-on-pasture-cattle,-1,ch4
+manure-management-other,faostat,faostat,Manure left on Pasture,1,ch4
 other-agricultural-soil-emissions,faostat,faostat,Crop Residues,1,ch4
 other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1,ch4
-solid-waste-disposal,edgar,edgar,4.A Solid Waste Disposal,1,ch4
 biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,ch4
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,ch4
 wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1,ch4
@@ -92,6 +103,7 @@ other-fossil-fuel-operations,edgar,edgar,1.B.2 Oil and Natural Gas,1,n2o
 other-fossil-fuel-operations,edgar,edgar,1.A.1.bc Petroleum Refining - Manufacture of Solid Fuels and Other Energy Industries,1,n2o
 other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-production-and-transport,-1,n2o
 other-fossil-fuel-operations,climate-trace,climate-trace,oil-and-gas-refining,-1,n2o
+other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,n2o
 other-manufacturing,edgar,edgar,1.A.2 Manufacturing Industries and Construction,1,n2o
 other-manufacturing,edgar,edgar,2.A.1 Cement production,1,n2o
 other-manufacturing,edgar,edgar,2.A.2 Lime production,1,n2o
@@ -100,6 +112,8 @@ other-manufacturing,edgar,edgar,2.A.4 Other Process Uses of Carbonates,1,n2o
 other-manufacturing,edgar,edgar,2.B Chemical Industry,1,n2o
 other-manufacturing,edgar,edgar,2.C Metal Industry,1,n2o
 other-manufacturing,edgar,edgar,2.D Non-Energy Products from Fuels and Solvent Use,1,n2o
+other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,n2o
+other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,n2o
 other-manufacturing,climate-trace,climate-trace,cement,-1,n2o
 other-manufacturing,climate-trace,climate-trace,chemicals,-1,n2o
 other-manufacturing,climate-trace,climate-trace,steel,-1,n2o
@@ -110,12 +124,15 @@ other-manufacturing,climate-trace,climate-trace,copper-mining,-1,n2o
 other-manufacturing,climate-trace,climate-trace,iron-mining,-1,n2o
 other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1,n2o
 other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1,n2o
-enteric-fermentation,faostat,faostat,Enteric Fermentation,1,n2o
-manure-management,faostat,faostat,Manure Management,1,n2o
+enteric-fermentation-other,faostat,faostat,Enteric Fermentation,1,n2o
+enteric-fermentation-other,climate-trace,climate-trace,enteric-fermentation-cattle-feedlot,-1,n2o
+manure-management-other,faostat,faostat,Manure Management,1,n2o
+manure-management-other,climate-trace,climate-trace,manure-management-cattle-feedlot,-1,n2o
 other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture,1,n2o
 other-agricultural-soil-emissions,faostat,faostat,Crop Residues,1,n2o
 other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1,n2o
-solid-waste-disposal,edgar,edgar,4.A Solid Waste Disposal,1,n2o
+other-agricultural-soil-emissions,faostat,faostat,Manure applied to Soils,1,n2o
+other-agricultural-soil-emissions,climate-trace,climate-trace,manure-left-on-pasture-cattle,-1,n2o
 biological-treatment-of-solid-waste-&-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,n2o
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,n2o
 wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1,n2o
@@ -157,16 +174,3 @@ fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depletin
 fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-143a
 fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-152a
 fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-227ea
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-23
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-236fa
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-245fa
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-32
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-365mfc
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-41
-fluorinated-gases,edgar,edgar,2.F Product Uses as Substitutes for Ozone Depleting Substances,1,hfc-43-10-mee
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,c2f6
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,c3f8
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,c4f10
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,hcfc-141b
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,hcfc-142b
-fluorinated-gases,edgar,edgar,2.G Other Product Manufacture and Use,1,sf6
