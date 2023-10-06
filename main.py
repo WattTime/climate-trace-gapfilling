@@ -15,43 +15,47 @@ def process_all(args):
     # Get the data
     ############################
     # Init the Data Handler
-    dh = DataHandler(new_db=False)
+
 
     ############################
     # Project Data
     ############################
     # Project the Edgar Data
     ############################
-    proj_edgar = ProjectData(db_params_file_path=args.params_file, source="edgar")
-    proj_edgar.load()
-    proj_edgar.clean()
-    df_projections = proj_edgar.project()
-    df_projections_final = proj_edgar.prepare_to_write(df_projections)
-    # Write results to the DB
-    df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
-    dh.insert_with_update(df_projections_final, 'country_emissions')
+    # proj_edgar = ProjectData(db_params_file_path=args.params_file, source="edgar")
+    # proj_edgar.load()
+    # proj_edgar.clean()
+    # df_projections = proj_edgar.project()
+    # df_projections_final = proj_edgar.prepare_to_write(df_projections)
+    # # Write results to the DB
+    # df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
+    # dh.insert_with_update(df_projections_final, 'country_emissions')
 
     ############################
     # Project the FAOSTAT Data
     ############################
 
-    proj_edgar = ProjectData(db_params_file_path=args.params_file, source="faostat")
-    proj_edgar.load()
-    proj_edgar.clean()
-    df_projections = proj_edgar.project()
-    df_projections_final = proj_edgar.prepare_to_write(df_projections)
-    # Write results to the DB
-    df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
-    dh.insert_with_update(df_projections_final, 'country_emissions')
+    # proj_edgar = ProjectData(db_params_file_path=args.params_file, source="faostat")
+    # proj_edgar.load()
+    # proj_edgar.clean()
+    # df_projections = proj_edgar.project()
+    # df_projections_final = proj_edgar.prepare_to_write(df_projections)
+    # # Write results to the DB
+    # df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
+    # dh.insert_with_update(df_projections_final, 'country_emissions')
     ############################
     # Fill Gaps
     ############################
     # Get the newly projected edgar data from db
+    dh = DataHandler(new_db=False)
     edgar_data = get_all_edgar_data(dh, get_projected=True)
-    # Get the CT data from db
-    ct_data = dh.load_data("climate-trace", years_to_columns=True)
     # Get the FAOSTAT data from db
     faostat_data = get_all_faostat_data(dh, get_projected=True)
+
+    # Get the CT data from db
+    dh = DataHandler(new_db=True)
+    ct_data = dh.load_data("climate-trace", years_to_columns=True)
+
 
     # Gap fill on projected data
     concat_df = pd.concat([edgar_data, faostat_data, ct_data])
