@@ -23,18 +23,18 @@ class ProjectData:
                                               "4.D Wastewater Treatment and Discharge"]
             self.do_regression = True  # True if sectors_to_use_regression is not None
             # Last available year of data
-            self.end_training_year: int = 2018
+            self.end_training_year: int = 2021
             # Number of years to project forward
-            self.years_forward = np.array([1, 2, 3])
-            self.predicted_years = np.array([2019, 2020, 2021, 2022])
+            self.years_forward = np.array([1])
+            self.predicted_years = np.array([2022])
 
         elif self.source == "faostat":
             self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
             # Last available year of data
-            self.end_training_year: int = 2019
+            self.end_training_year: int = 2020
             # Number of years to project forward
             self.years_forward = np.array([1, 2])
-            self.predicted_years = np.array([2020, 2021])
+            self.predicted_years = np.array([2021, 2022])
 
         else:
             raise ValueError("Only 'edgar' and 'faostat' acceptable as inputs.")
@@ -56,7 +56,7 @@ class ProjectData:
         self.data = pd.DataFrame()
 
     def load(self):
-        dh = DataHandler()
+        dh = DataHandler(new_db=False)
         self.data = dh.load_data(self.source, rename_columns=False)
 
     def clean(self):

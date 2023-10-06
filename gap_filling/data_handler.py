@@ -16,13 +16,17 @@ INSERT_MAPPING = {"ois": "original_inventory_sector",
                   "st": "start_time", "et": "end_time", "cd": "created_date"}
 
 
-def init_db_connect():
+def init_db_connect(new_db):
 
+    if (new_db):
+        pgdb = "climatetrace-2023"
+    else:
+        pgdb = "climatetrace"
     pghost = os.getenv("CLIMATETRACE_HOST", "127.0.0.1")
     pguser = os.getenv("CLIMATETRACE_USER", "chromacloud")
     pgpass = os.getenv("CLIMATETRACE_PASS")
     pgport = os.getenv("CLIMATETRACE_PORT", "5432")
-    pgdb = os.getenv("CLIMATETRACE_DB")
+
     con_str = f"host='{pghost}' dbname='{pgdb}' user='{pguser}' password='{pgpass}' port='{pgport}'"
     conn = pg2.connect(con_str)
 
@@ -30,8 +34,8 @@ def init_db_connect():
 
 
 class DataHandler:
-    def __init__(self):
-        self.conn = init_db_connect()
+    def __init__(self, new_db):
+        self.conn = init_db_connect(new_db)
 
     # def get_params(self):
     #     with open(self.params_file, 'r') as fid:
@@ -155,36 +159,4 @@ class DataHandler:
                 cur.execute(insert_str, vals)
                 self.conn.commit()
 
-    def write_data(self, data_to_insert, rows_type=None):
-        # Two different kinds of inserts we'll need to perform here
-        data_to_insert['created_date'] = datetime.datetime.now().isoformat()
-        if rows_type == "climate-trace":
-            #INSERT_MAPPING["cem"] = "carbon_equivalency_method"
-            insert_str = "INSERT INTO country_emissions (original_inventory_sector, iso3_country, " \
-                         "reporting_entity, gas, emissions_quantity, emissions_quantity_units, " \
-                         "start_time, end_time, created_date) " \
-                         "VALUES (%(ois)s, %(i3c)s, %(re)s, %(g)s, %(eq)s, %(equ)s, %(st)s, %(et)s, %(cd)s)"
-
-        # TODO: how do we store this data (the measurement method thing)?
-        elif rows_type == "edgar":
-            INSERT_MAPPING["mmd"] = "measurement_method_doi_or_url"
-            insert_str = "INSERT INTO country_emissions (original_inventory_sector, iso3_country, " \
-                         "reporting_entity, gas, emissions_quantity, emissions_quantity_units, " \
-                         "measurement_method_doi_or_url, start_time, end_time) " \
-                         "VALUES (%(ois)s, %(i3c)s, %(re)s, %(g)s, %(eq)s, %(equ)s, %(mmd)s, %(st)s, %(et)s)"
-
-        curs = self.get_cursor()
-
-        # According to the docs, executemany() is no faster than execute() in a loop, so running it in a loop
-        for dti in data_to_insert.iterrows():
-            print(f'inserting row {dti[0]} out of {data_to_insert.shape[0]} for sector {data_to_insert.loc[dti[0], "original_inventory_sector"]}')
-            data_row_dict = {k: dti[1][INSERT_MAPPING[k]] for k in INSERT_MAPPING.keys()}
-            try:
-                curs.execute(insert_str, data_row_dict)
-            except Exception as e:
-                t = e.pgerror
-                if 'duplicate' in t.split(':')[1]:
-                    print('Duplicate encountered, skipping entry')
-                    continue
-            self.conn.commit()
 

@@ -15,12 +15,26 @@ def process_all(args):
     # Get the data
     ############################
     # Init the Data Handler
-    dh = DataHandler()
+    dh = DataHandler(new_db=False)
 
     ############################
     # Project Data
     ############################
     # Project the Edgar Data
+    ############################
+    proj_edgar = ProjectData(db_params_file_path=args.params_file, source="edgar")
+    proj_edgar.load()
+    proj_edgar.clean()
+    df_projections = proj_edgar.project()
+    df_projections_final = proj_edgar.prepare_to_write(df_projections)
+    # Write results to the DB
+    df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
+    dh.insert_with_update(df_projections_final, 'country_emissions')
+
+    ############################
+    # Project the FAOSTAT Data
+    ############################
+
     proj_edgar = ProjectData(db_params_file_path=args.params_file, source="faostat")
     proj_edgar.load()
     proj_edgar.clean()
@@ -28,14 +42,12 @@ def process_all(args):
     df_projections_final = proj_edgar.prepare_to_write(df_projections)
     # Write results to the DB
     df_projections_final = df_projections_final.drop(columns='measurement_method_doi_or_url')
-    # dh.insert_with_update(df_projections_final, 'country_emissions')
-
-
+    dh.insert_with_update(df_projections_final, 'country_emissions')
     ############################
     # Fill Gaps
     ############################
     # Get the newly projected edgar data from db
-    edgar_data = get_all_edgar_data(dh, get_projected=False)
+    edgar_data = get_all_edgar_data(dh, get_projected=True)
     # Get the CT data from db
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
     # Get the FAOSTAT data from db
@@ -57,8 +69,9 @@ def process_all(args):
     data_to_insert = parse_and_format_data_to_insert(assembled_df)
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
     # Write results to the DB
-    # dh.insert_with_update(data_to_insert, 'country_emissions')
-    # dh.write_data(data_to_insert, rows_type='climate-trace')
+    dh = DataHandler(new_db=True)
+    dh.insert_with_update(data_to_insert, 'country_emissions')
+
 
 
 if __name__ == "__main__":
