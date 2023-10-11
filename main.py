@@ -53,7 +53,7 @@ def process_all(args):
     faostat_data = get_all_faostat_data(dh, get_projected=True)
 
     # Get the CT data from db
-    dh = DataHandler(new_db=True)
+    dh = DataHandler(new_db=False)
     ct_data = dh.load_data("climate-trace", years_to_columns=True)
 
 
@@ -73,7 +73,7 @@ def process_all(args):
     data_to_insert = parse_and_format_data_to_insert(assembled_df)
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
     # Write results to the DB
-    dh = DataHandler(new_db=True)
+    dh = DataHandler(new_db=False)
     dh.insert_with_update(data_to_insert, 'country_emissions')
 
 
