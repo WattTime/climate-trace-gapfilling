@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-from gap_filling.constants import COMP_YEARS, COL_ORDER, GAP_EQUATIONS, GF_SOURCE_DATA_COLUMNS, get_country_name
+from gap_filling.constants import COMP_YEARS, COL_ORDER,  GF_SOURCE_DATA_COLUMNS, get_country_name
 
 
 def prepare_df(concat_df):
@@ -22,10 +22,8 @@ def data_cleaning(sectors_gap_filled):
 
 
 def fill_all_sector_gaps(input_df, ge=None):
-    if ge is None:
-        GE = GAP_EQUATIONS
-    else:
-        GE = ge
+
+    GE = ge
 
     GE = GE[GE['inventory'].isin(GF_SOURCE_DATA_COLUMNS)]
     GE = GE.rename(columns={"sub_inventory": "Data source", "subinv_units": "Sector", "sub-sector": "to_be_gap_filled"})\
@@ -52,7 +50,7 @@ def fill_all_sector_gaps(input_df, ge=None):
     sectors_gap_filled["Data source"] = "climate-trace"
     sectors_gap_filled["Country"] = [get_country_name(name) for name in sectors_gap_filled["ID"]]
     sectors_gap_filled["Created"] = datetime.now().isoformat()
-    sectors_gap_filled.to_csv('20221102_gap_fill_before_clean.csv')
+    sectors_gap_filled.to_csv('20231020_gap_fill_before_clean.csv')
     # sectors_gap_filled[COL_ORDER + "Created"].to_csv('/Users/leegans/Downloads/watttime/gapupdated.csv')
     new_ct_entries = data_cleaning(sectors_gap_filled)
 

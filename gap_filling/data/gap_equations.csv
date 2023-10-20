@@ -1,6 +1,6 @@
 sub-sector,inventory,sub_inventory,subinv_units,values,Gas
-other-energy-use,climate-trace,climate-trace,electricity-generation,-1,co2
 other-energy-use,edgar,edgar,1.A.1.a Main Activity Electricity and Heat Production,1,co2
+other-energy-use,climate-trace,climate-trace,electricity-generation,-1,co2
 railways,edgar,edgar,1.A.3.c Railways,1,co2
 road-transportation,edgar,edgar,1.A.3.b_noRES Road Transportation no resuspension,1,co2
 other-transport,edgar,edgar,1.A.3.e Other Transportation,1,co2
@@ -21,7 +21,6 @@ other-manufacturing,edgar,edgar,2.B Chemical Industry,1,co2
 other-manufacturing,edgar,edgar,2.C Metal Industry,1,co2
 other-manufacturing,edgar,edgar,2.D Non-Energy Products from Fuels and Solvent Use,1,co2
 other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,co2
-other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,co2
 other-manufacturing,climate-trace,climate-trace,cement,-1,co2
 other-manufacturing,climate-trace,climate-trace,chemicals,-1,co2
 other-manufacturing,climate-trace,climate-trace,steel,-1,co2
@@ -44,8 +43,8 @@ other-agricultural-soil-emissions,faostat,faostat,Manure applied to Soils,1,co2
 other-agricultural-soil-emissions,climate-trace,climate-trace,manure-left-on-pasture-cattle,-1,co2
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,co2
 wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1,co2
-other-energy-use,climate-trace,climate-trace,electricity-generation,-1,ch4
 other-energy-use,edgar,edgar,1.A.1.a Main Activity Electricity and Heat Production,1,ch4
+other-energy-use,climate-trace,climate-trace,electricity-generation,-1,ch4
 railways,edgar,edgar,1.A.3.c Railways,1,ch4
 road-transportation,edgar,edgar,1.A.3.b_noRES Road Transportation no resuspension,1,ch4
 other-transport,edgar,edgar,1.A.3.e Other Transportation,1,ch4
@@ -77,7 +76,6 @@ other-manufacturing,climate-trace,climate-trace,iron-mining,-1,ch4
 other-manufacturing,climate-trace,climate-trace,rock-quarrying,-1,ch4
 other-manufacturing,climate-trace,climate-trace,sand-quarrying,-1,ch4
 other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,ch4
-other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,ch4
 enteric-fermentation-other,faostat,faostat,Enteric Fermentation,1,ch4
 enteric-fermentation-other,climate-trace,climate-trace,enteric-fermentation-cattle-feedlot,-1,ch4
 manure-management-other,faostat,faostat,Manure Management,1,ch4
@@ -90,8 +88,8 @@ other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1,ch4
 biological-treatment-of-solid-waste-and-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,ch4
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,ch4
 wastewater-treatment-and-discharge,edgar,edgar,4.D Wastewater Treatment and Discharge,1,ch4
-other-energy-use,climate-trace,climate-trace,electricity-generation,-1,n2o
 other-energy-use,edgar,edgar,1.A.1.a Main Activity Electricity and Heat Production,1,n2o
+other-energy-use,climate-trace,climate-trace,electricity-generation,-1,n2o
 railways,edgar,edgar,1.A.3.c Railways,1,n2o
 road-transportation,edgar,edgar,1.A.3.b_noRES Road Transportation no resuspension,1,n2o
 other-transport,edgar,edgar,1.A.3.e Other Transportation,1,n2o
@@ -113,7 +111,6 @@ other-manufacturing,edgar,edgar,2.B Chemical Industry,1,n2o
 other-manufacturing,edgar,edgar,2.C Metal Industry,1,n2o
 other-manufacturing,edgar,edgar,2.D Non-Energy Products from Fuels and Solvent Use,1,n2o
 other-manufacturing,climate-trace,climate-trace,petrochemicals,-1,n2o
-other-manufacturing,climate-trace,climate-trace,other-manufacturing,-1,n2o
 other-manufacturing,climate-trace,climate-trace,cement,-1,n2o
 other-manufacturing,climate-trace,climate-trace,chemicals,-1,n2o
 other-manufacturing,climate-trace,climate-trace,steel,-1,n2o

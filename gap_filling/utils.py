@@ -3,8 +3,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER, \
-    SECTORS
+from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER
 
 
 def rename_df_columns(df, db_like=False):
@@ -115,7 +114,7 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     return co2e_vals
 
 
-def add_all_gas_rows(df):
+def add_all_gas_rows(df, SECTORS):
     # Drop rows with nas for country id
     df.dropna(subset=['ID'], inplace=True)
     # Set the individual indexes
@@ -153,11 +152,11 @@ def add_carbon_eq_column(df):
 
 
 
-def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df):
+def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
     # Join together the dataframes
     joined_df = pd.concat([co2e_20_df, co2e_100_df, gap_filled_df])
     # Need to add in placeholders for all gases
-    final_df = add_all_gas_rows(joined_df)
+    final_df = add_all_gas_rows(joined_df, SECTORS)
 
     return final_df
 
