@@ -59,3 +59,7 @@ We use the `pytest` library for unit testing the functionality. Simply run `pyte
 - Forward filling (using the most recent year of data and repeating that value for future years) is used when **either** ..
    - The sector is part of the designated regression sector list AND there are less than 4 available data points within the 6 year training window (more than 2 NaNs)
       - The sector is not part of the designated regression sector list
+
+
+ #### CEDS-derived country-level estimates for new sectors
+- ceds_derived_sectors.py can be run to quantify country-level estimates calculated using a combination of existing CEDS, EDGAR and Climate-TRACE data in the country_emissions_staging table. Functions insert derivations to same table. These new sectors are needed for 2024 gap filling equations.

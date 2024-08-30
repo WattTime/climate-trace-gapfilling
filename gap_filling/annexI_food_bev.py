@@ -8,6 +8,37 @@ from gap_filling.utils import get_all_ceds_data
 
 
 def quantify_country_scaling_factor(df, sec1, sec2, country, show_plots=True):
+    """
+    Ingests Annex I reported emissions data and quantifies the 
+    relationship between the emissions of two sectors for a 
+    given country. Two methods are possible and automatically chosen
+    based on the slope of the linear regression between the
+    two variables. If a negative or insignificant (p>0.1) relationship
+    is determined OR fewer than 4 data points exist, then the 
+    median ratio between the two sector emissions is used, otherwise
+    the slope is used.
+
+    Parameters
+    ----------
+    df: pandas dataframe
+    contains the annex I country level emissions for 1990-2021
+
+    sec1, sec2: str
+    sectors to be analyzed (must be in df)
+
+    country: str
+    country for analysis (not ISO3 code)
+
+    show_plots: bool
+
+    Returns
+    -------
+    factor: float
+    scaling factor (in units of sec2 emissions per sec1 emissions)
+
+    method: str
+    method (either 'median' or 'slope')
+    """
     gas = 'CO2'
 
     sel = (df['Sector'].isin([sec1, sec2])) & (df["Party"] == country)
@@ -47,6 +78,21 @@ def quantify_country_scaling_factor(df, sec1, sec2, country, show_plots=True):
 
 
 def calculate_scaling_factors(df):
+    """
+    Function to automatically cycle through the relevant
+    countries and calculate the scaling factors for each.
+    Writes them to a csv.
+
+    Parameters
+    ----------
+    df: pandas dataframe
+    contains the annex I country level emissions for 1990-2021
+
+    Returns
+    -------
+    sf_df: pandas dataframe
+    contains scaling factors for each country (see countries below)
+    """
 
     sec1 = '1.A.2.e  Food Processing, Beverages and Tobacco'
     sec2 = '2.H.2  Food and Beverages Industry'
@@ -78,6 +124,21 @@ def calculate_scaling_factors(df):
 
 
 def main():
+    """
+    Overall function to estimate 2.H.2 country-level emissions
+    based on CEDS 1.a.2.e emissions estimates. 
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    sector_ceds_df: pandas df
+    contains estimate for 2H2 country-level emissions
+    Data coverage matches CEDS 1.A.2.e data as it is
+    simply a scaling of those values.
+    """
     new_db = False
     # get connection
     get_ceds_conn = DataHandler(new_db)
@@ -93,6 +154,7 @@ def main():
     df = pd.read_csv(f"./gap_filling/data/CO2_annual_1A2e_2H2_emissions_in_kt.csv")
     df.replace(to_replace=["NE", "NO", "IE", "NA", "NO,IE"], value=np.nan, inplace=True)
     df.Sector = df.Sector.astype(str).str.strip()
+    #Drop EU
     df = df[df["Party"] != 'European Union (Convention)']
     df.dropna().reset_index(drop=True, inplace=True)
 
@@ -109,7 +171,7 @@ def main():
         for iso in sf_df["ID"].values:
             sel_new = (sel) & (ceds_data["ID"] == iso)
             sector_ceds_df.loc[sel_new, col] *= sf_df.loc[sf_df["ID"] == iso, "2H2_per_1A2e"].values[0]
-    
+    #Establish the sector
     sector_ceds_df.loc[:, "Sector"] = "2.H.2-food-beverage-and-tobacco-direct"
 
     return sector_ceds_df.copy()

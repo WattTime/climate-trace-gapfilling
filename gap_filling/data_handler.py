@@ -161,6 +161,9 @@ class DataHandler:
 
 
     def insert_derived_data(self, e_data, table):
+        '''
+        Built to insert ceds-derived data.
+        '''
         e_data = e_data.to_dict('records')
         with self.conn.cursor() as cur:
             # Set chunksize

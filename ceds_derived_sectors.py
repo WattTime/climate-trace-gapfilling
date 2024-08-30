@@ -17,9 +17,29 @@ from gap_filling import annexI_food_bev
 
 
 def initialize_data():
+    """
+    Initializes connection to climatetrace database
+    for edgar, climate-trace, and ceds data and 
+    pulls relevant data using existing functions
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    edgar_data: pandas df
+    contains all EDGAR data in country_emissions_staging
+    table
+    
+    ceds_data: pandas df
+    '' for CEDS
+
+    ct_data: pandas df
+    '' for climate-trace
+    """
 
     new_db = False
-
 
     # get connections
     getedgar_conn = DataHandler(new_db=False)
@@ -127,6 +147,25 @@ def sector_fractional_contribution(inventory_data,
 
 def test_combustion_fractions(ceds_lime_comb, ceds_glass_comb,\
                               ceds_mineral_comb, ceds_cement_comb, ceds_data):
+    """
+    Test to ensure that the fractional contributions of
+    lime, glass, cement and 'other' minerals add up to
+    the total.
+
+    Parameters
+    ----------
+    ceds_lime_comb: pandas df
+    contains estimated combustion emissions from CEDS
+    ceds_{glass, mineral, cement}_comb: all as above
+
+    ceds_data: pandas df
+    contains all CEDS data from country-emissions-staging table
+
+    Returns
+    -------
+    boolean:
+    True if test is passed.
+    """
 
     #Combine all four dfs:
     dfs_to_combine = [ceds_cement_comb, ceds_mineral_comb, ceds_glass_comb, ceds_lime_comb]
@@ -156,25 +195,23 @@ def test_combustion_fractions(ceds_lime_comb, ceds_glass_comb,\
     return all([x < 1e-5 for x in test_to_be_zero])
 
 
-def generate_batch_conditions(df, batch_size=1000):
-    """
-    Writes batch condition for query to update/delete table rows.
-    """
-    conditions = []
-    for _, row in df.iterrows():
-        condition = f"(asset_id = '{row['asset_id']}' AND " \
-                    f"original_inventory_sector = '{row['original_inventory_sector']}' " \
-                    f"AND iso3_country = '{row['iso3_country']}' " \
-                    f"AND start_time = '{row['start_time']}' " \
-                    f"AND end_time = '{row['end_time']}')"
-        conditions.append(condition)
-
-    # Split conditions into batches
-    batched_conditions = [conditions[i:i + batch_size] for i in range(0, len(conditions), batch_size)]
-    return [" OR ".join(batch) for batch in batched_conditions]
-
-
 def main():
+    """
+    Overall function to derive new CEDS-related sectors
+    to be included in 2024 gap equations. Calculates new
+    sectors based on a combination of EDGAR, CEDS, and
+    Climate-TRACE country-level data, and writes the 
+    new sectors (reporting-entity='ceds-derived') to the
+    country_emissions_staging table.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
 
     #Initialize data:
     edgar_data, ceds_data, ct_data = initialize_data()
