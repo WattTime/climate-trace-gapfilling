@@ -182,9 +182,7 @@ class DataHandler:
                 insert_str = f"INSERT INTO {table} ({','.join(data[0].keys())}) VALUES {args_str}"
                 cur.execute(insert_str, vals)
                 self.conn.commit()
-            print(i)
-            print(i+cs)
-            print(len(e_data))
+
                 
 
 
