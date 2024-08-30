@@ -2,6 +2,7 @@ import datetime
 
 import numpy as np
 import pandas as pd
+import sys
 
 from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER
 
@@ -162,7 +163,7 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
 
 
 def get_all_edgar_data(data_handler, get_projected=False):
-    expected_last_edgar_value_year = 2022
+    expected_last_edgar_value_year = 2023
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
     edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)
@@ -185,3 +186,29 @@ def get_all_faostat_data(data_handler, get_projected=False):
     projected_faostat_data = data_handler.load_data("faostat-projected", years_to_columns=True)
 
     return pd.concat([faostat_data, projected_faostat_data])
+
+
+def get_all_ceds_data(data_handler, get_projected=False):
+    expected_last_ceds_value_year = 2022
+    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
+    ceds_data = data_handler.load_data("ceds",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return ceds_data
+    projected_ceds_data = data_handler.load_data("ceds-projected", years_to_columns=True)
+
+    return pd.concat([ceds_data, projected_ceds_data])
+
+
+def get_all_ceds_derived_data(data_handler, get_projected=False):
+    expected_last_ceds_value_year = 2022
+    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
+    ceds_data = data_handler.load_data("ceds-derived",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return ceds_data
+    projected_ceds_data = data_handler.load_data("ceds-derived-projected", years_to_columns=True)
+
+    return pd.concat([ceds_data, projected_ceds_data])

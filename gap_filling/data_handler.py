@@ -57,20 +57,20 @@ class DataHandler:
         if gas is None:
             curs.execute("SELECT original_inventory_sector, reporting_entity, iso3_country, "
                          "gas, emissions_quantity, emissions_quantity_units, start_time "
-                         "FROM country_emissions WHERE reporting_entity = %s AND start_time >= %s "
+                         "FROM country_emissions_staging WHERE reporting_entity = %s AND start_time >= %s "
                          "AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                          (source, start_date))
         else:
             if not is_co2e:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
                              "gas, emissions_quantity, emissions_quantity_units, start_time "
-                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
+                             "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                              (source, gas, start_date))
             else:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
                              "gas, emissions_quantity, emissions_quantity_units, start_time "
-                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
+                             "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s",
                              (source, gas, start_date))
 
@@ -158,5 +158,33 @@ class DataHandler:
                                          """
                 cur.execute(insert_str, vals)
                 self.conn.commit()
+
+
+    def insert_derived_data(self, e_data, table):
+        e_data = e_data.to_dict('records')
+        with self.conn.cursor() as cur:
+            # Set chunksize
+            cs = 100
+            for i in range(0, len(e_data), cs):
+                data = e_data[i: i + cs]
+
+                vals = []
+                for d in data:
+                    vshort = tuple(d[k] for k in d.keys())
+                    vals.append(vshort)
+
+                sss = ",".join("%s" for _ in data[0].keys())
+                # Fix to mogrify over executemany
+                args_str = ",".join(
+                    cur.mogrify(f"({sss})", x).decode("utf-8") for x in vals
+                )
+
+                insert_str = f"INSERT INTO {table} ({','.join(data[0].keys())}) VALUES {args_str}"
+                cur.execute(insert_str, vals)
+                self.conn.commit()
+            print(i)
+            print(i+cs)
+            print(len(e_data))
+                
 
 
