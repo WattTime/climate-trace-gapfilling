@@ -11,9 +11,15 @@ import os
 from gap_filling.utils import parse_and_format_query_data
 
 INSERT_MAPPING = {"ois": "original_inventory_sector",
-                  "i3c": "iso3_country", "re": "reporting_entity", "g": "gas",
-                  "eq": "emissions_quantity", "equ": "emissions_quantity_units",
-                  "st": "start_time", "et": "end_time", "cd": "created_date"}
+                  "i3c": "iso3_country", 
+                  "re": "reporting_entity", 
+                  "g": "gas",
+                  "eq": "emissions_quantity", 
+                  "equ": "emissions_quantity_units",
+                  "st": "start_time", 
+                  "et": "end_time", 
+                  "cd": "created_date",
+                  "rd": "recency_date"}
 
 
 def init_db_connect():

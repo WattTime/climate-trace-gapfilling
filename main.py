@@ -111,6 +111,7 @@ def process_all(args):
     # These data need to undergo a transformation before we can insert them into the db
     data_to_insert = parse_and_format_data_to_insert(assembled_df)
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
+    data_to_insert['recency_date'] = datetime.datetime.now().isoformat()
     # Write results to the DB
     write_conn.insert_with_update(data_to_insert, 'country_emissions_staging')
 
