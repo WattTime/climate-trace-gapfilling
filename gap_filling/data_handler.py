@@ -16,12 +16,9 @@ INSERT_MAPPING = {"ois": "original_inventory_sector",
                   "st": "start_time", "et": "end_time", "cd": "created_date"}
 
 
-def init_db_connect(new_db):
+def init_db_connect():
 
-    if (new_db):
-        pgdb = "climatetrace-2023"
-    else:
-        pgdb = "climatetrace"
+    pgdb = "climatetrace"
     pghost = os.getenv("CLIMATETRACE_HOST", "127.0.0.1")
     pguser = os.getenv("CLIMATETRACE_USER", "chromacloud")
     pgpass = os.getenv("CLIMATETRACE_PASS")
@@ -34,8 +31,8 @@ def init_db_connect(new_db):
 
 
 class DataHandler:
-    def __init__(self, new_db):
-        self.conn = init_db_connect(new_db)
+    def __init__(self):
+        self.conn = init_db_connect()
 
     # def get_params(self):
     #     with open(self.params_file, 'r') as fid:

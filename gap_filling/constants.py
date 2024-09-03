@@ -25,11 +25,10 @@ COL_NAME_TO_DB_SOURCE = {"Sector": "original_inventory_sector",
                          "Created": "created_date"
                          }
 
-def get_gap_equations(new_db):
-    if new_db:
-        return pd.read_csv(r"gap_filling/data/gap_equations.csv")
-    else:
-        return pd.read_csv(r"gap_filling/data/gap_equations_2022release.csv")
+def get_gap_equations():
+    return pd.read_csv(r"gap_filling/data/gap_equations.csv")
+    # else:
+    #     return pd.read_csv(r"gap_filling/data/gap_equations_2022release.csv")
 
 def get_sectors(gap_equations):
     return gap_equations['sub-sector'].values

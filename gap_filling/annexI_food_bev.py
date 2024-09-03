@@ -139,9 +139,9 @@ def main():
     Data coverage matches CEDS 1.A.2.e data as it is
     simply a scaling of those values.
     """
-    new_db = False
+
     # get connection
-    get_ceds_conn = DataHandler(new_db)
+    get_ceds_conn = DataHandler()
     #Get CEDS data
     ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=True)
     #Combine projected and existing data

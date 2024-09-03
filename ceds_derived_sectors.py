@@ -42,9 +42,9 @@ def initialize_data():
     new_db = False
 
     # get connections
-    getedgar_conn = DataHandler(new_db=False)
-    getct_conn = DataHandler(new_db)
-    get_ceds_conn = DataHandler(new_db)
+    getedgar_conn = DataHandler()
+    getct_conn = DataHandler()
+    get_ceds_conn = DataHandler()
 
     edgar_data = get_all_edgar_data(getedgar_conn, get_projected=True)
     #Combine projected and existing data
@@ -285,7 +285,7 @@ def main():
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
 
     #Delete existing data:
-    db_connector = DataHandler(False)
+    db_connector = DataHandler()
     curs = db_connector.get_cursor()
     curs.execute(f"DELETE FROM country_emissions_staging WHERE reporting_entity IN ('ceds-derived', 'ceds-derived-projected')")
     curs.close()
@@ -301,7 +301,7 @@ def main():
             yrs_to_write = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
 
         #write to db
-        write_conn = DataHandler(False)
+        write_conn = DataHandler()
         write_conn.insert_with_update(data_to_insert[pd.to_datetime(data_to_insert.start_time).dt.year.isin(yrs_to_write)],
                                         'country_emissions_staging')
     return

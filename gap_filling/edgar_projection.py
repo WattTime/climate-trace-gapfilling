@@ -64,7 +64,7 @@ class ProjectData:
         self.data = pd.DataFrame()
 
     def load(self):
-        dh = DataHandler(new_db=False)
+        dh = DataHandler()
         self.data = dh.load_data(self.source, rename_columns=False)
 
     def clean(self):

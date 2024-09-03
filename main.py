@@ -12,7 +12,7 @@ from gap_filling.constants import get_gap_equations, get_sectors
 import ceds_derived_sectors
 
 
-def process_all(args, new_db):
+def process_all(args):
     ############################
     # Get the data
     ############################
@@ -20,14 +20,14 @@ def process_all(args, new_db):
 
 
     # get connections
-    getedgar_conn = DataHandler(new_db=False)
-    getct_conn = DataHandler(new_db)
-    getceds_conn = DataHandler(False)
-    getcedsderived_conn = DataHandler(False)
-    write_conn = DataHandler(new_db)
+    getedgar_conn = DataHandler()
+    getct_conn = DataHandler()
+    getceds_conn = DataHandler()
+    getcedsderived_conn = DataHandler()
+    write_conn = DataHandler()
 
     # Get Gap equations
-    gap_equations = get_gap_equations(new_db=True)
+    gap_equations = get_gap_equations()
     sectors = get_sectors(gap_equations)
 
     ############################
@@ -121,4 +121,4 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--params_file', dest='params_file', type=str,
                         help='location of db connection params', default='params.json')
     args = parser.parse_args()
-    process_all(args, False)
+    process_all(args)
