@@ -23,21 +23,29 @@ class ProjectData:
                                               "4.D Wastewater Treatment and Discharge"]
             self.do_regression = True  # True if sectors_to_use_regression is not None
             # Last available year of data
-            self.end_training_year: int = 2021
+            self.end_training_year: int = 2022
             # Number of years to project forward
-            self.years_forward = np.array([1])
-            self.predicted_years = np.array([2022])
+            self.years_forward = np.array([1, 2])
+            self.predicted_years = np.array([2023, 2024])
 
         elif self.source == "faostat":
             self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
             # Last available year of data
-            self.end_training_year: int = 2020
+            self.end_training_year: int = 2022
             # Number of years to project forward
             self.years_forward = np.array([1, 2])
-            self.predicted_years = np.array([2021, 2022])
+            self.predicted_years = np.array([2023, 2024])
+
+        elif self.source == "ceds":
+            self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
+            # Last available year of data
+            self.end_training_year: int = 2022
+            # Number of years to project forward
+            self.years_forward = np.array([1, 2])
+            self.predicted_years = np.array([2023, 2024])
 
         else:
-            raise ValueError("Only 'edgar' and 'faostat' acceptable as inputs.")
+            raise ValueError("Only 'edgar', 'faostat', 'ceds' acceptable as inputs.")
 
         self.expected_emission_quantity_units = "tonnes"
         self.db_params_file = db_params_file_path

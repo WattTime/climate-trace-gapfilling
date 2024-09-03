@@ -107,7 +107,7 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     col_to_mult = 'co2e_' + str(co2e_to_compute)
 
     # Multiply by the appropriate co2e value
-    merged_df[COMP_YEARS] = merged_df[COMP_YEARS].multiply(merged_df[col_to_mult], axis=0)
+    merged_df[COMP_YEARS] = merged_df[COMP_YEARS].astype(float).multiply(merged_df[col_to_mult].astype(float), axis=0)
     # Sum up the multiplied numbers and return them
     co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
     co2e_vals["Gas"] = col_to_mult + "yr"
@@ -163,7 +163,7 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
 
 
 def get_all_edgar_data(data_handler, get_projected=False):
-    expected_last_edgar_value_year = 2023
+    expected_last_edgar_value_year = 2022
     columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
     edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)
