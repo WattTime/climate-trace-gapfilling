@@ -143,11 +143,15 @@ def main():
     # get connection
     get_ceds_conn = DataHandler(new_db)
     #Get CEDS data
-    ceds_data = get_all_ceds_data(get_ceds_conn)
+    ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=True)
+    #Combine projected and existing data
+    ceds_data = ceds_data.groupby(['ID', 'Sector', "Gas"]).sum().reset_index()
+    ceds_data["Data source"] = "ceds"
+    ceds_data["Units"] = "tonnes"
     #Convert column names to strings for processing
     ceds_data.columns = ceds_data.columns.astype(str)
     #Now ensure all ceds and edgar values are numpy floats
-    for yr in range(2015,2023):
+    for yr in range(2015,2025):
         ceds_data[str(yr)] = ceds_data[str(yr)].astype(float)
 
     #Get AnnexI data
@@ -167,7 +171,7 @@ def main():
 
     #Scale 1A2e data by country-specific scaling factors and send back the dataframe
     sector_ceds_df = ceds_data[sel]
-    for col in np.arange(2015,2023).astype(str):
+    for col in np.arange(2015,2025).astype(str):
         for iso in sf_df["ID"].values:
             sel_new = (sel) & (ceds_data["ID"] == iso)
             sector_ceds_df.loc[sel_new, col] *= sf_df.loc[sf_df["ID"] == iso, "2H2_per_1A2e"].values[0]
