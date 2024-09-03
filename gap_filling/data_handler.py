@@ -151,7 +151,7 @@ class DataHandler:
                 args_str = ','.join(cur.mogrify(f"({sss})", x).decode("utf-8") for x in vals)
                 insert_str = f"""INSERT INTO {table} ({','.join(data[0].keys())})
                                                  VALUES {args_str}
-                                                 ON CONFLICT ON CONSTRAINT country_duplicates DO UPDATE 
+                                                 ON CONFLICT ON CONSTRAINT country_staging_duplicates DO UPDATE 
                                                  SET {set_statement}
                                                  WHERE {where_statement}
                                                  AND {and_statement}
