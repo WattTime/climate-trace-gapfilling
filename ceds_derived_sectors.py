@@ -283,13 +283,6 @@ def main():
 
     data_to_insert = parse_and_format_data_to_insert(ceds_derived_df)
     data_to_insert['created_date'] = datetime.datetime.now().isoformat()
-
-    #Delete existing data:
-    db_connector = DataHandler()
-    curs = db_connector.get_cursor()
-    curs.execute(f"DELETE FROM country_emissions_staging WHERE reporting_entity IN ('ceds-derived', 'ceds-derived-projected')")
-    curs.close()
-    db_connector.conn.commit()
     
     for proj in [False, True]:
 

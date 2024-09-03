@@ -156,33 +156,6 @@ class DataHandler:
                 cur.execute(insert_str, vals)
                 self.conn.commit()
 
-
-    def insert_derived_data(self, e_data, table):
-        '''
-        Built to insert ceds-derived data.
-        '''
-        e_data = e_data.to_dict('records')
-        with self.conn.cursor() as cur:
-            # Set chunksize
-            cs = 100
-            for i in range(0, len(e_data), cs):
-                data = e_data[i: i + cs]
-
-                vals = []
-                for d in data:
-                    vshort = tuple(d[k] for k in d.keys())
-                    vals.append(vshort)
-
-                sss = ",".join("%s" for _ in data[0].keys())
-                # Fix to mogrify over executemany
-                args_str = ",".join(
-                    cur.mogrify(f"({sss})", x).decode("utf-8") for x in vals
-                )
-
-                insert_str = f"INSERT INTO {table} ({','.join(data[0].keys())}) VALUES {args_str}"
-                cur.execute(insert_str, vals)
-                self.conn.commit()
-
                 
 
 
