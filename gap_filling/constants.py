@@ -1,8 +1,8 @@
 import pandas as pd
 
-GF_SOURCE_DATA_COLUMNS = ['edgar', 'faostat', 'climate-trace', 'edgar-projected', 'faostat-projected']
+GF_SOURCE_DATA_COLUMNS = ['edgar', 'faostat', 'climate-trace', 'edgar-projected', 'faostat-projected', 'ceds', 'ceds-derived']
 # GAP_EQUATIONS = pd.read_csv(r"gap_filling/data/gap_equations.csv")
-COMP_YEARS = [2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
+COMP_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
 COL_ORDER = ['Data source', 'ID', 'Sector', 'Gas', 'Unit'] + COMP_YEARS
 CODE_CONVERSION = pd.read_csv('gap_filling/data/CT_ISO_Codes.csv').applymap(lambda x: x.strip(' '))
 
@@ -25,11 +25,10 @@ COL_NAME_TO_DB_SOURCE = {"Sector": "original_inventory_sector",
                          "Created": "created_date"
                          }
 
-def get_gap_equations(new_db):
-    if new_db:
-        return pd.read_csv(r"gap_filling/data/gap_equations.csv")
-    else:
-        return pd.read_csv(r"gap_filling/data/gap_equations_2022release.csv")
+def get_gap_equations():
+    return pd.read_csv(r"gap_filling/data/gap_equations.csv")
+    # else:
+    #     return pd.read_csv(r"gap_filling/data/gap_equations_2022release.csv")
 
 def get_sectors(gap_equations):
     return gap_equations['sub-sector'].values

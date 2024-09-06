@@ -2,6 +2,7 @@ import datetime
 
 import numpy as np
 import pandas as pd
+import sys
 
 from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER
 
@@ -106,7 +107,7 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     col_to_mult = 'co2e_' + str(co2e_to_compute)
 
     # Multiply by the appropriate co2e value
-    merged_df[COMP_YEARS] = merged_df[COMP_YEARS].multiply(merged_df[col_to_mult], axis=0)
+    merged_df[COMP_YEARS] = merged_df[COMP_YEARS].astype(float).multiply(merged_df[col_to_mult].astype(float), axis=0)
     # Sum up the multiplied numbers and return them
     co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
     co2e_vals["Gas"] = col_to_mult + "yr"
@@ -185,3 +186,29 @@ def get_all_faostat_data(data_handler, get_projected=False):
     projected_faostat_data = data_handler.load_data("faostat-projected", years_to_columns=True)
 
     return pd.concat([faostat_data, projected_faostat_data])
+
+
+def get_all_ceds_data(data_handler, get_projected=False):
+    expected_last_ceds_value_year = 2022
+    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
+    ceds_data = data_handler.load_data("ceds",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return ceds_data
+    projected_ceds_data = data_handler.load_data("ceds-projected", years_to_columns=True)
+
+    return pd.concat([ceds_data, projected_ceds_data])
+
+
+def get_all_ceds_derived_data(data_handler, get_projected=False):
+    expected_last_ceds_value_year = 2022
+    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
+    ceds_data = data_handler.load_data("ceds-derived",  gas=None, years_to_columns=True)
+    # TODO: MMB TO remove this and the parameter, this is just a workaround
+    if not get_projected:
+        return ceds_data
+    projected_ceds_data = data_handler.load_data("ceds-derived-projected", years_to_columns=True)
+
+    return pd.concat([ceds_data, projected_ceds_data])

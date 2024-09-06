@@ -11,17 +11,20 @@ import os
 from gap_filling.utils import parse_and_format_query_data
 
 INSERT_MAPPING = {"ois": "original_inventory_sector",
-                  "i3c": "iso3_country", "re": "reporting_entity", "g": "gas",
-                  "eq": "emissions_quantity", "equ": "emissions_quantity_units",
-                  "st": "start_time", "et": "end_time", "cd": "created_date"}
+                  "i3c": "iso3_country", 
+                  "re": "reporting_entity", 
+                  "g": "gas",
+                  "eq": "emissions_quantity", 
+                  "equ": "emissions_quantity_units",
+                  "st": "start_time", 
+                  "et": "end_time", 
+                  "cd": "created_date",
+                  "rd": "recency_date"}
 
 
-def init_db_connect(new_db):
+def init_db_connect():
 
-    if (new_db):
-        pgdb = "climatetrace-2023"
-    else:
-        pgdb = "climatetrace"
+    pgdb = "climatetrace"
     pghost = os.getenv("CLIMATETRACE_HOST", "127.0.0.1")
     pguser = os.getenv("CLIMATETRACE_USER", "chromacloud")
     pgpass = os.getenv("CLIMATETRACE_PASS")
@@ -34,8 +37,8 @@ def init_db_connect(new_db):
 
 
 class DataHandler:
-    def __init__(self, new_db):
-        self.conn = init_db_connect(new_db)
+    def __init__(self):
+        self.conn = init_db_connect()
 
     # def get_params(self):
     #     with open(self.params_file, 'r') as fid:
@@ -57,20 +60,20 @@ class DataHandler:
         if gas is None:
             curs.execute("SELECT original_inventory_sector, reporting_entity, iso3_country, "
                          "gas, emissions_quantity, emissions_quantity_units, start_time "
-                         "FROM country_emissions WHERE reporting_entity = %s AND start_time >= %s "
+                         "FROM country_emissions_staging WHERE reporting_entity = %s AND start_time >= %s "
                          "AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                          (source, start_date))
         else:
             if not is_co2e:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
                              "gas, emissions_quantity, emissions_quantity_units, start_time "
-                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
+                             "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                              (source, gas, start_date))
             else:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
                              "gas, emissions_quantity, emissions_quantity_units, start_time "
-                             "FROM country_emissions WHERE reporting_entity = %s AND gas = %s "
+                             "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s",
                              (source, gas, start_date))
 
@@ -151,12 +154,14 @@ class DataHandler:
                 args_str = ','.join(cur.mogrify(f"({sss})", x).decode("utf-8") for x in vals)
                 insert_str = f"""INSERT INTO {table} ({','.join(data[0].keys())})
                                                  VALUES {args_str}
-                                                 ON CONFLICT ON CONSTRAINT country_duplicates DO UPDATE 
+                                                 ON CONFLICT ON CONSTRAINT country_staging_duplicates DO UPDATE 
                                                  SET {set_statement}
                                                  WHERE {where_statement}
                                                  AND {and_statement}
                                          """
                 cur.execute(insert_str, vals)
                 self.conn.commit()
+
+                
 
 
