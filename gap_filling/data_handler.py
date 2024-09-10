@@ -59,20 +59,20 @@ class DataHandler:
 
         if gas is None:
             curs.execute("SELECT original_inventory_sector, reporting_entity, iso3_country, "
-                         "gas, emissions_quantity, emissions_quantity_units, start_time "
+                         "gas, emissions_quantity, emissions_quantity_units, start_time, temporal_granularity "
                          "FROM country_emissions_staging WHERE reporting_entity = %s AND start_time >= %s "
                          "AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                          (source, start_date))
         else:
             if not is_co2e:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
-                             "gas, emissions_quantity, emissions_quantity_units, start_time "
+                             "gas, emissions_quantity, emissions_quantity_units, start_time, temporal_granularity "
                              "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s AND gas != 'co2e_100yr' AND gas != 'co2e_20yr'",
                              (source, gas, start_date))
             else:
                 curs.execute("SELECT original_inventory_sector, reporting_entity, "
-                             "gas, emissions_quantity, emissions_quantity_units, start_time "
+                             "gas, emissions_quantity, emissions_quantity_units, start_time, temporal_granularity "
                              "FROM country_emissions_staging WHERE reporting_entity = %s AND gas = %s "
                              "AND start_time >= %s",
                              (source, gas, start_date))
