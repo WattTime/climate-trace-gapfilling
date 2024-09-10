@@ -50,7 +50,7 @@ def initialize_data():
     #Combine projected and existing data
     edgar_data = edgar_data.groupby(['ID', 'Sector', "Gas"]).sum().reset_index()
     edgar_data["Data source"] = "edgar"
-    edgar_data["Units"] = "tonnes"
+    edgar_data["Unit"] = "tonnes"
     #Convert column names to strings for processing
     edgar_data.columns = edgar_data.columns.astype(str)
 
@@ -60,7 +60,7 @@ def initialize_data():
     #Combine projected and existing data
     ceds_data = ceds_data.groupby(['ID', 'Sector', "Gas"]).sum().reset_index()
     ceds_data["Data source"] = "ceds"
-    ceds_data["Units"] = "tonnes"
+    ceds_data["Unit"] = "tonnes"
     #Convert column names to strings for processing
     ceds_data.columns = ceds_data.columns.astype(str)
 
