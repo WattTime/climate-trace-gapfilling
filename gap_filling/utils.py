@@ -26,20 +26,38 @@ def from_years_to_start_and_end_times(df):
 
 def from_start_and_end_times_to_years(df):
     # Parse the year from the start_time column
-    start_times = df.loc[:, "start_time"]
-    years = [st.year for st in start_times]
-    df["start_time"] = years
-    return df.rename(columns={"start_time": "year"})
+    # start_times = df.loc[:, "start_time"]
+    # years = [st.year for st in start_times]
+    # df["start_time"] = years
+    # return df.rename(columns={"start_time": "year"})
     # st_col = np.where(colnames == "start_time")[0][0]
     # st_data = [d.year for d in d[:, st_col]]
     # d[:, st_col] = st_data
     # colnames[st_col] = "year"
     # return pd.DataFrame(data=d, columns=colnames)
 
+    df['start_time'] = df['start_time'].dt.year
+
+    #Function to sum all rows for a given year but only non-annual rows if both exist (either other or month, mainly)
+    def sum_not_year(group):
+        if 'annual' in group['temporal_granularity'].values and len(np.unique(group['temporal_granularity'].values)) < 1:
+            #If annual granularity exists with another, sum the 'other'
+            return group[group['temporal_granularity'] != 'annual']['emissions_quantity'].sum()
+        else:
+            return group['emissions_quantity'].sum()
+    
+    summed_df = df.groupby(["original_inventory_sector", 
+                            "iso3_country", 
+                            "reporting_entity",
+                            "gas",
+                            "emissions_quantity_units", 
+                            "start_time"]).apply(sum_not_year).reset_index(name='emissions_quantity')
+    return summed_df.rename(columns={"start_time": "year"})
+
 
 def transform_years_to_columns(df):
     # TODO: MMB TO REMOVE - this is just a temporary workaround
-    df = df.drop_duplicates(subset=["Sector", "ID", "Data source", "Gas", "Unit", "year"], keep='first')
+    # df = df.drop_duplicates(subset=["Sector", "ID", "Data source", "Gas", "Unit", "year"], keep='first')
     transformed_df = df.pivot(index=["Sector", "ID", "Data source", "Gas", "Unit"], columns='year',
                               values='emissions_quantity').reset_index()
     missing_years = [cy for cy in COMP_YEARS if cy not in transformed_df.columns]
