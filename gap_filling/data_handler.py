@@ -116,10 +116,9 @@ class DataHandler:
 
                 for x in ['created_date']:
                     base_select.pop(x)
-
-                for x in ['created_date', 'emissions_quantity']:
-                    base_where.pop(x)
-
+                for x in ['created_date', 'recency_date', 'emissions_quantity']:
+                    if x in base_where:
+                        base_where.pop(x)
                 for x in ['created_date']:
                     base_and.pop('created_date')
 
