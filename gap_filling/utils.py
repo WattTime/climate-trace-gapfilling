@@ -40,7 +40,7 @@ def from_start_and_end_times_to_years(df):
 
     #Function to sum all rows for a given year but only non-annual rows if both exist (either other or month, mainly)
     def sum_not_year(group):
-        if 'annual' in group['temporal_granularity'].values and len(np.unique(group['temporal_granularity'].values)) < 1:
+        if 'annual' in group['temporal_granularity'].values and len(np.unique(group['temporal_granularity'].values)) > 1:
             #If annual granularity exists with another, sum the 'other'
             return group[group['temporal_granularity'] != 'annual']['emissions_quantity'].sum()
         else:
