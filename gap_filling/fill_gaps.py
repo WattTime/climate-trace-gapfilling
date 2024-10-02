@@ -30,6 +30,8 @@ def fill_all_sector_gaps(input_df, ge=None):
         .drop(columns="inventory")
     input_df = input_df.replace('edgar-projected', 'edgar')
     input_df = input_df.replace('faostat-projected', 'faostat')
+    input_df = input_df.replace('ceds-projected', 'ceds')
+    input_df = input_df.replace('ceds-derived-projected', 'ceds-derived')
 
     # Merge in the values for the appropriate sector rows (including the sector to be gap filled)
     df_merge = input_df.merge(GE, how='right')
