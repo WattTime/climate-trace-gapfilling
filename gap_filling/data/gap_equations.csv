@@ -162,6 +162,8 @@ other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture - non c
 other-agricultural-soil-emissions,faostat,faostat,Drained organic soils,1,n2o,,
 other-agricultural-soil-emissions,edgar,edgar,3.C.2 Liming,1,n2o,,
 other-agricultural-soil-emissions,edgar,edgar,3.C.3 Urea application,1,n2o,,
+crop-residues,faostat,faostat,Crop Residues,1,n2o,,
+manure-applied-to-soils,faostat,faostat,Manure applied to Soils,1,n2o,,
 biological-treatment-of-solid-waste-and-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,n2o,,
 incineration-and-open-burning-of-waste,edgar,edgar,4.C Incineration and Open Burning of Waste,1,n2o,,
 fluorinated-gases,edgar,edgar,2.B Chemical Industry,1,c2f6,,
