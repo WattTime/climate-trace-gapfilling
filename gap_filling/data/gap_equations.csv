@@ -48,7 +48,7 @@ other-manufacturing,ceds-derived,ceds-derived,misc-mineral-industry-combustion,1
 enteric-fermentation-other,faostat,faostat,Enteric Fermentation - non cattle,1,co2,x,
 manure-management-other,faostat,faostat,Manure Management - non cattle,1,co2,,
 other-agricultural-soil-emissions,faostat,faostat,Manure left on Pasture - non cattle,1,co2,,
-other-agricultural-soil-emissions,faostat,faostat,Drained organic soils (N2O),1,co2,,
+other-agricultural-soil-emissions,faostat,faostat,Drained organic soils (CO2),1,co2,,
 other-agricultural-soil-emissions,edgar,edgar,3.C.2 Liming,1,co2,x,
 other-agricultural-soil-emissions,edgar,edgar,3.C.3 Urea application,1,co2,,
 biological-treatment-of-solid-waste-and-biogenic,edgar,edgar,4.B Biological Treatment of Solid Waste,1,co2,x,
