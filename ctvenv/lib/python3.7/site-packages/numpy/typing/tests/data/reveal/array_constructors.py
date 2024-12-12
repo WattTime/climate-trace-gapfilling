@@ -1,7 +1,9 @@
 from typing import List, Any
 import numpy as np
 
+
 class SubClass(np.ndarray): ...
+
 
 i8: np.int64
 
@@ -9,7 +11,9 @@ A: np.ndarray
 B: SubClass
 C: List[int]
 
+
 def func(i: int, j: int, **kwargs: Any) -> SubClass: ...
+
 
 reveal_type(np.asarray(A))  # E: numpy.ndarray[Any, Any]
 reveal_type(np.asarray(B))  # E: numpy.ndarray[Any, Any]

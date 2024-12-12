@@ -16,6 +16,7 @@ from ._shape import _ShapeLike
 
 if sys.version_info >= (3, 8):
     from typing import Protocol, TypedDict
+
     HAVE_PROTOCOL = True
 else:
     try:
@@ -80,10 +81,11 @@ if TYPE_CHECKING or HAVE_PROTOCOL:
     # Mandatory + optional keys
     class _DTypeDict(_DTypeDictBase, total=False):
         offsets: Sequence[int]
-        titles: Sequence[Any]  # Only `str` elements are usable as indexing aliases, but all objects are legal
+        titles: Sequence[
+            Any
+        ]  # Only `str` elements are usable as indexing aliases, but all objects are legal
         itemsize: int
         aligned: bool
-
 
     # A protocol for anything with the dtype attribute
     class _SupportsDType(Protocol[_DType_co]):

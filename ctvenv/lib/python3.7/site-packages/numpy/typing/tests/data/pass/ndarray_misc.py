@@ -13,7 +13,9 @@ from typing import cast, Any
 
 import numpy as np
 
+
 class SubClass(np.ndarray): ...
+
 
 i4 = np.int32(1)
 A: np.ndarray[Any, np.dtype[np.int32]] = np.array([[1]], dtype=np.int32)
@@ -99,7 +101,7 @@ A.min(out=B0)
 
 i4.newbyteorder()
 A.newbyteorder()
-B0.newbyteorder('|')
+B0.newbyteorder("|")
 
 i4.prod()
 A.prod()

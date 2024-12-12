@@ -114,4 +114,4 @@ possible.
 
 from ._backend import *
 
-__version__ = '0.5.1+49.g4c3f1d7.scipy'
+__version__ = "0.5.1+49.g4c3f1d7.scipy"

@@ -1,6 +1,7 @@
 """
 Tests for the pandas custom headers in http(s) requests
 """
+
 import gzip
 import http.server
 from io import BytesIO

@@ -4,7 +4,12 @@ import numpy as np
 import pandas as pd
 import sys
 
-from gap_filling.constants import COL_NAME_TO_DB_SOURCE, DB_SOURCE_TO_COL_NAME, COMP_YEARS, COL_ORDER
+from gap_filling.constants import (
+    COL_NAME_TO_DB_SOURCE,
+    DB_SOURCE_TO_COL_NAME,
+    COMP_YEARS,
+    COL_ORDER,
+)
 
 
 def rename_df_columns(df, db_like=False):
@@ -36,46 +41,69 @@ def from_start_and_end_times_to_years(df):
     # colnames[st_col] = "year"
     # return pd.DataFrame(data=d, columns=colnames)
 
-    df['start_time'] = df['start_time'].dt.year
+    df["start_time"] = df["start_time"].dt.year
 
-    #Function to sum all rows for a given year but only non-annual rows if both exist (either other or month, mainly)
+    # Function to sum all rows for a given year but only non-annual rows if both exist (either other or month, mainly)
     def sum_not_year(group):
-        if 'annual' in group['temporal_granularity'].values and len(np.unique(group['temporal_granularity'].values)) > 1:
-            #If annual granularity exists with another, sum the 'other'
-            return group[group['temporal_granularity'] != 'annual']['emissions_quantity'].sum()
+        if (
+            "annual" in group["temporal_granularity"].values
+            and len(np.unique(group["temporal_granularity"].values)) > 1
+        ):
+            # If annual granularity exists with another, sum the 'other'
+            return group[group["temporal_granularity"] != "annual"][
+                "emissions_quantity"
+            ].sum()
         else:
-            return group['emissions_quantity'].sum()
-    
-    summed_df = df.groupby(["original_inventory_sector", 
-                            "iso3_country", 
-                            "reporting_entity",
-                            "gas",
-                            "emissions_quantity_units", 
-                            "start_time"]).apply(sum_not_year).reset_index(name='emissions_quantity')
+            return group["emissions_quantity"].sum()
+
+    summed_df = (
+        df.groupby(
+            [
+                "original_inventory_sector",
+                "iso3_country",
+                "reporting_entity",
+                "gas",
+                "emissions_quantity_units",
+                "start_time",
+            ]
+        )
+        .apply(sum_not_year)
+        .reset_index(name="emissions_quantity")
+    )
     return summed_df.rename(columns={"start_time": "year"})
 
 
 def transform_years_to_columns(df):
     # TODO: MMB TO REMOVE - this is just a temporary workaround
     # df = df.drop_duplicates(subset=["Sector", "ID", "Data source", "Gas", "Unit", "year"], keep='first')
-    transformed_df = df.pivot(index=["Sector", "ID", "Data source", "Gas", "Unit"], columns='year',
-                              values='emissions_quantity').reset_index()
+    transformed_df = df.pivot(
+        index=["Sector", "ID", "Data source", "Gas", "Unit"],
+        columns="year",
+        values="emissions_quantity",
+    ).reset_index()
     missing_years = [cy for cy in COMP_YEARS if cy not in transformed_df.columns]
 
-    transformed_df = transformed_df.reindex(columns=transformed_df.columns.tolist() + missing_years)
+    transformed_df = transformed_df.reindex(
+        columns=transformed_df.columns.tolist() + missing_years
+    )
     return transformed_df[COL_ORDER]
 
 
 def transform_years_to_rows(df):
-    transformed_df = pd.melt(df,
-                             id_vars=["Sector", "ID", "Data source", "Gas", "Unit"],
-                             value_vars=COMP_YEARS,
-                             var_name="year", value_name="emissions_quantity")
+    transformed_df = pd.melt(
+        df,
+        id_vars=["Sector", "ID", "Data source", "Gas", "Unit"],
+        value_vars=COMP_YEARS,
+        var_name="year",
+        value_name="emissions_quantity",
+    )
 
     return transformed_df
 
 
-def parse_and_format_query_data(my_df, years_to_columns=True, rename_columns=True, times_to_years=True):
+def parse_and_format_query_data(
+    my_df, years_to_columns=True, rename_columns=True, times_to_years=True
+):
     # This function takes data from the database and puts it in the format that the gapfilling/projection code expects
     if times_to_years:
         # Replace the start time column with the year
@@ -92,8 +120,9 @@ def parse_and_format_query_data(my_df, years_to_columns=True, rename_columns=Tru
     return my_df
 
 
-def parse_and_format_data_to_insert(my_df, do_melt=True, years_to_times=True, rename_columns=True,
-                                    add_carbon_eq=True):
+def parse_and_format_data_to_insert(
+    my_df, do_melt=True, years_to_times=True, rename_columns=True, add_carbon_eq=True
+):
     # This function takes data from the gapfilling/projection code and puts it in the database format
 
     if do_melt:
@@ -122,12 +151,18 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     # Merge on the Gas value
     merged_df = pd.merge(df, ghgs, on="Gas")
 
-    col_to_mult = 'co2e_' + str(co2e_to_compute)
+    col_to_mult = "co2e_" + str(co2e_to_compute)
 
     # Multiply by the appropriate co2e value
-    merged_df[COMP_YEARS] = merged_df[COMP_YEARS].astype(float).multiply(merged_df[col_to_mult].astype(float), axis=0)
+    merged_df[COMP_YEARS] = (
+        merged_df[COMP_YEARS]
+        .astype(float)
+        .multiply(merged_df[col_to_mult].astype(float), axis=0)
+    )
     # Sum up the multiplied numbers and return them
-    co2e_vals = merged_df.groupby(["ID", "Sector", "Data source", "Unit"], as_index=False)[COMP_YEARS].sum()
+    co2e_vals = merged_df.groupby(
+        ["ID", "Sector", "Data source", "Unit"], as_index=False
+    )[COMP_YEARS].sum()
     co2e_vals["Gas"] = col_to_mult + "yr"
 
     return co2e_vals
@@ -135,40 +170,47 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
 
 def add_all_gas_rows(df, SECTORS):
     # Drop rows with nas for country id
-    df.dropna(subset=['ID'], inplace=True)
+    df.dropna(subset=["ID"], inplace=True)
     # Set the individual indexes
-    gases = ['co2', 'n2o', 'ch4', 'co2e_20yr', 'co2e_100yr']
-    multi_ind_col_list = ['ID', 'Sector', 'Gas']
+    gases = ["co2", "n2o", "ch4", "co2e_20yr", "co2e_100yr"]
+    multi_ind_col_list = ["ID", "Sector", "Gas"]
     # countries = df['Country'].unique()
-    ids = df['ID'].unique()
+    ids = df["ID"].unique()
     sectors = np.unique(SECTORS)
 
     # Reindex to ensure every country, gas, sector, and year combination has a row
-    multi_index_all_years = pd.MultiIndex.from_product([ids, sectors, gases], names=multi_ind_col_list)
+    multi_index_all_years = pd.MultiIndex.from_product(
+        [ids, sectors, gases], names=multi_ind_col_list
+    )
 
     print(f"Number of country-sector-gas combinations: {len(multi_index_all_years)}")
 
-    df = df.set_index(multi_ind_col_list).reindex(multi_index_all_years, fill_value=0).reset_index()
-    df['Data source'] = 'climate-trace'
-    df['Unit'] = 'tonnes'
+    df = (
+        df.set_index(multi_ind_col_list)
+        .reindex(multi_index_all_years, fill_value=0)
+        .reset_index()
+    )
+    df["Data source"] = "climate-trace"
+    df["Unit"] = "tonnes"
     # df['Country'] = [get_country_name(name) for name in df['ID']]
 
     return df
 
 
 def add_carbon_eq_column(df):
-    cem_gases = {'co2e_20': 0, 'co2e_100': 1}
-    cem_str = ['20-year', '100-year']
+    cem_gases = {"co2e_20": 0, "co2e_100": 1}
+    cem_str = ["20-year", "100-year"]
 
     # Build list of carbon equivalence strings
-    cem_list = [cem_str[cem_gases[g]] if g in cem_gases.keys() else "" for g in df['gas']]
+    cem_list = [
+        cem_str[cem_gases[g]] if g in cem_gases.keys() else "" for g in df["gas"]
+    ]
 
     # Change co2eq back
-    df.replace({'Gas': {'co2e_20': 'co2e', 'co2e_100': 'co2e'}})
-    df['carbon_equivalency_method'] = cem_list
+    df.replace({"Gas": {"co2e_20": "co2e", "co2e_100": "co2e"}})
+    df["carbon_equivalency_method"] = cem_list
 
     return df
-
 
 
 def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
@@ -182,51 +224,67 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
 
 def get_all_edgar_data(data_handler, get_projected=False):
     expected_last_edgar_value_year = 2022
-    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1)
+    columns_to_check = np.where(
+        np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1
+    )
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
-    edgar_data = data_handler.load_data("edgar",  gas=None, years_to_columns=True)
+    edgar_data = data_handler.load_data("edgar", gas=None, years_to_columns=True)
     # TODO: MMB TO remove this and the parameter, this is just a workaround
     if not get_projected:
         return edgar_data
-    projected_edgar_data = data_handler.load_data("edgar-projected", years_to_columns=True)
+    projected_edgar_data = data_handler.load_data(
+        "edgar-projected", years_to_columns=True
+    )
 
     return pd.concat([edgar_data, projected_edgar_data])
 
 
 def get_all_faostat_data(data_handler, get_projected=False):
     expected_last_faostat_value_year = 2022
-    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_faostat_value_year, COMP_YEARS, -1)
+    columns_to_check = np.where(
+        np.array(COMP_YEARS) > expected_last_faostat_value_year, COMP_YEARS, -1
+    )
     # This function gets the edgar and projected edgar data from the database and returns a concatenated data frame
-    faostat_data = data_handler.load_data("faostat",  gas=None, years_to_columns=True)
+    faostat_data = data_handler.load_data("faostat", gas=None, years_to_columns=True)
     # TODO: MMB TO remove this and the parameter, this is just a workaround
     if not get_projected:
         return faostat_data
-    projected_faostat_data = data_handler.load_data("faostat-projected", years_to_columns=True)
+    projected_faostat_data = data_handler.load_data(
+        "faostat-projected", years_to_columns=True
+    )
 
     return pd.concat([faostat_data, projected_faostat_data])
 
 
 def get_all_ceds_data(data_handler, get_projected=False):
     expected_last_ceds_value_year = 2022
-    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    columns_to_check = np.where(
+        np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1
+    )
     # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
-    ceds_data = data_handler.load_data("ceds",  gas=None, years_to_columns=True)
+    ceds_data = data_handler.load_data("ceds", gas=None, years_to_columns=True)
     # TODO: MMB TO remove this and the parameter, this is just a workaround
     if not get_projected:
         return ceds_data
-    projected_ceds_data = data_handler.load_data("ceds-projected", years_to_columns=True)
+    projected_ceds_data = data_handler.load_data(
+        "ceds-projected", years_to_columns=True
+    )
 
     return pd.concat([ceds_data, projected_ceds_data])
 
 
 def get_all_ceds_derived_data(data_handler, get_projected=False):
     expected_last_ceds_value_year = 2022
-    columns_to_check = np.where(np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1)
+    columns_to_check = np.where(
+        np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1
+    )
     # This function gets the ceds and projected ceds data from the database and returns a concatenated data frame
-    ceds_data = data_handler.load_data("ceds-derived",  gas=None, years_to_columns=True)
+    ceds_data = data_handler.load_data("ceds-derived", gas=None, years_to_columns=True)
     # TODO: MMB TO remove this and the parameter, this is just a workaround
     if not get_projected:
         return ceds_data
-    projected_ceds_data = data_handler.load_data("ceds-derived-projected", years_to_columns=True)
+    projected_ceds_data = data_handler.load_data(
+        "ceds-derived-projected", years_to_columns=True
+    )
 
     return pd.concat([ceds_data, projected_ceds_data])
