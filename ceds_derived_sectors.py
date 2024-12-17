@@ -13,6 +13,7 @@ from gap_filling.data_handler import DataHandler
 from gap_filling.edgar_projection import ProjectData
 from gap_filling.utils import (parse_and_format_data_to_insert, get_all_edgar_data, get_all_ceds_data)
 from gap_filling import annexI_food_bev
+from gap_filling.constants import COMP_YEARS, CEDS_FINAL_YEAR
 
 
 
@@ -65,7 +66,7 @@ def initialize_data():
     ceds_data.columns = ceds_data.columns.astype(str)
 
     #Now ensure all ceds and edgar values are numpy floats
-    for yr in range(2015,2025):
+    for yr in COMP_YEARS:
         edgar_data[str(yr)] = edgar_data[str(yr)].astype(float)
         ceds_data[str(yr)] = ceds_data[str(yr)].astype(float)
         
@@ -130,7 +131,7 @@ def sector_fractional_contribution(inventory_data,
 
     #Next add Glass-production so we can get its contribution to the total
     inventory_frac_subsector = pd.merge(inventory_data_sum_add_secs, inventory_data_contributing_sec, on=['ID', "Gas"], suffixes=('_total',''))
-    for yr in range(2015,2025):
+    for yr in COMP_YEARS:
         inventory_frac_subsector[f'{yr}'] = inventory_frac_subsector[f'{yr}'] / inventory_frac_subsector[f'{yr}_total']
         inventory_frac_subsector.drop(columns=[f'{yr}_total'], inplace=True)
     inventory_frac_subsector.fillna(0, inplace=True)
@@ -142,7 +143,7 @@ def sector_fractional_contribution(inventory_data,
 
     #Now multiply edgar_frac_glass by 1.A.2.f to get the contribution of glass to 1.A.2.f
     frac_of_other_sector = pd.merge(inventory_frac_subsector, inventory_data_to_take_fraction_of, on=['ID', "Gas"], suffixes=('_frac','_total'))
-    for yr in range(2015,2025):
+    for yr in COMP_YEARS:
         frac_of_other_sector[f'{yr}'] = frac_of_other_sector[f'{yr}_frac'] * frac_of_other_sector[f'{yr}_total']
         frac_of_other_sector.drop(columns=[f'{yr}_total', f'{yr}_frac'], inplace=True)
     frac_of_other_sector.fillna(0, inplace=True)
@@ -181,22 +182,21 @@ def test_combustion_fractions(ceds_lime_comb, ceds_glass_comb,\
     suffixes = ["_cement", "_other", "_glass", "_lime"]
     for i in range(1, len(dfs_to_combine)):
         comb_df = pd.merge(comb_df, dfs_to_combine[i], on=["ID", "Gas"], suffixes=('', suffixes[i]))
-    comb_df.columns = [col + suffixes[0] if col in np.arange(2015,2025).astype(str).tolist() else col\
+    comb_df.columns = [col + suffixes[0] if col in np.array(COMP_YEARS).astype(str).tolist() else col\
                     for col in comb_df.columns]
-
     #Now sum them
-    for yr in range(2015,2025):
+    for yr in COMP_YEARS:
         comb_df[str(yr)] = comb_df[f"{yr}_cement"] + comb_df[f"{yr}_glass"] +\
                         comb_df[f"{yr}_lime"] + comb_df[f"{yr}_other"]
 
-    comb_df = comb_df[np.arange(2015,2025).astype(str).tolist() + ["Gas"] + ["ID"]]
+    comb_df = comb_df[np.array(COMP_YEARS).astype(str).tolist() + ["Gas"] + ["ID"]]
 
     #Now merge with 1A2e CEDS data and take difference by year
     ceds_comb_data = ceds_data[ceds_data["Sector"] == "1A2f_Ind-Comb-Non-metalic-minerals"]
     merged_df = pd.merge(comb_df, ceds_comb_data, on=["ID", "Gas"], suffixes=('_summed', "_total"))
 
     test_to_be_zero = []
-    for yr in range(2015,2025):
+    for yr in COMP_YEARS:
         test_to_be_zero.append(np.nansum(merged_df[f"{str(yr)}_summed"] - merged_df[f"{str(yr)}_total"]))
 
     
@@ -287,11 +287,11 @@ def main():
     for proj in [False, True]:
 
         if proj:
-            yrs_to_write = [2023, 2024]
+            yrs_to_write =  np.array(COMP_YEARS)[np.array(COMP_YEARS) > CEDS_FINAL_YEAR]
             data_to_insert.loc[pd.to_datetime(data_to_insert.start_time).dt.year.isin(yrs_to_write), 
                        "reporting_entity"] = "ceds-derived-projected"
         else:
-            yrs_to_write = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
+            yrs_to_write = np.array(COMP_YEARS)[np.array(COMP_YEARS) <= CEDS_FINAL_YEAR]
 
         #write to db
         write_conn = DataHandler()
