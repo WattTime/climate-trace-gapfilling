@@ -173,7 +173,7 @@ def main():
     sector_ceds_df = ceds_data[sel]
     for col in np.arange(2015,2025).astype(str):
         for iso in sf_df["ID"].values:
-            sel_new = (sel) & (ceds_data["ID"] == iso)
+            sel_new = (sector_ceds_df["ID"] == iso)
             sector_ceds_df.loc[sel_new, col] *= sf_df.loc[sf_df["ID"] == iso, "2H2_per_1A2e"].values[0]
     #Establish the sector
     sector_ceds_df.loc[:, "Sector"] = "2.H.2-food-beverage-and-tobacco-direct"
