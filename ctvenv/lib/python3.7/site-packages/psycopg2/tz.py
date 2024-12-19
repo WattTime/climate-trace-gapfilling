@@ -4,6 +4,7 @@ This module holds two different tzinfo implementations that can be used as
 the 'tzinfo' argument to datetime constructors, directly passed to psycopg
 functions or used to set the .tzinfo_factory attribute in cursors.
 """
+
 # psycopg/tz.py - tzinfo implementation
 #
 # Copyright (C) 2003-2019 Federico Di Gregorio  <fog@debian.org>
@@ -52,6 +53,7 @@ class FixedOffsetTimezone(datetime.tzinfo):
 
     .. __: https://docs.python.org/library/datetime.html
     """
+
     _name = None
     _offset = ZERO
 
@@ -66,8 +68,7 @@ class FixedOffsetTimezone(datetime.tzinfo):
             self._name = name
 
     def __new__(cls, offset=None, name=None):
-        """Return a suitable instance created earlier if it exists
-        """
+        """Return a suitable instance created earlier if it exists"""
         key = (offset, name)
         try:
             return cls._cache[key]
@@ -77,8 +78,10 @@ class FixedOffsetTimezone(datetime.tzinfo):
             return tz
 
     def __repr__(self):
-        return "psycopg2.tz.FixedOffsetTimezone(offset=%r, name=%r)" \
-            % (self._offset, self._name)
+        return "psycopg2.tz.FixedOffsetTimezone(offset=%r, name=%r)" % (
+            self._offset,
+            self._name,
+        )
 
     def __eq__(self, other):
         if isinstance(other, FixedOffsetTimezone):
@@ -129,6 +132,7 @@ class LocalTimezone(datetime.tzinfo):
 
     This is the exact implementation from the Python 2.3 documentation.
     """
+
     def utcoffset(self, dt):
         if self._isdst(dt):
             return DSTOFFSET
@@ -145,9 +149,17 @@ class LocalTimezone(datetime.tzinfo):
         return time.tzname[self._isdst(dt)]
 
     def _isdst(self, dt):
-        tt = (dt.year, dt.month, dt.day,
-              dt.hour, dt.minute, dt.second,
-              dt.weekday(), 0, -1)
+        tt = (
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.weekday(),
+            0,
+            -1,
+        )
         stamp = time.mktime(tt)
         tt = time.localtime(stamp)
         return tt.tm_isdst > 0

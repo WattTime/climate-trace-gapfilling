@@ -29,7 +29,6 @@ def _get_precision_dict() -> t.Dict[str, str]:
         ("_NBitIntP", np.intp),
         ("_NBitInt", np.int_),
         ("_NBitLongLong", np.longlong),
-
         ("_NBitHalf", np.half),
         ("_NBitSingle", np.single),
         ("_NBitDouble", np.double),
@@ -38,7 +37,7 @@ def _get_precision_dict() -> t.Dict[str, str]:
     ret = {}
     for name, typ in names:
         n: int = 8 * typ().dtype.itemsize
-        ret[f'numpy.typing._nbit.{name}'] = f"numpy._{n}Bit"
+        ret[f"numpy.typing._nbit.{name}"] = f"numpy._{n}Bit"
     return ret
 
 
@@ -78,14 +77,17 @@ def _hook(ctx: AnalyzeTypeContext) -> Type:
 
 
 if t.TYPE_CHECKING or MYPY_EX is None:
+
     def _index(iterable: t.Iterable[Statement], id: str) -> int:
         """Identify the first ``ImportFrom`` instance the specified `id`."""
         for i, value in enumerate(iterable):
             if getattr(value, "id", None) == id:
                 return i
         else:
-            raise ValueError("Failed to identify a `ImportFrom` instance "
-                             f"with the following id: {id!r}")
+            raise ValueError(
+                "Failed to identify a `ImportFrom` instance "
+                f"with the following id: {id!r}"
+            )
 
     class _NumpyPlugin(Plugin):
         """A plugin for assigning platform-specific `numpy.number` precisions."""
@@ -109,7 +111,8 @@ if t.TYPE_CHECKING or MYPY_EX is None:
                 # Import ONLY the extended precision types available to the
                 # platform in question
                 imports = ImportFrom(
-                    "numpy.typing._extended_precision", 0,
+                    "numpy.typing._extended_precision",
+                    0,
                     names=[(v, v) for v in _EXTENDED_PRECISION_LIST],
                 )
                 imports.is_top_level = True
@@ -126,6 +129,7 @@ if t.TYPE_CHECKING or MYPY_EX is None:
         return _NumpyPlugin
 
 else:
+
     def plugin(version: str) -> t.Type[_NumpyPlugin]:
         """An entry-point for mypy."""
         raise MYPY_EX

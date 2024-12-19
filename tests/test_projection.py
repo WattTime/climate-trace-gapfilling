@@ -20,13 +20,25 @@ def test_regression():
     proj_edgar.clean()
     df_project = proj_edgar.project()
     # Check a few specific values
-    assert all(df_project.loc[(df_project[DbColumns.SECTOR] == ONE_B) &
-                              (df_project[DbColumns.GAS] == CO2) &
-                              (df_project[DbColumns.ID] == ECUADOR), DbColumns.VALUE] == np.array([7, 8, 9]))
+    assert all(
+        df_project.loc[
+            (df_project[DbColumns.SECTOR] == ONE_B)
+            & (df_project[DbColumns.GAS] == CO2)
+            & (df_project[DbColumns.ID] == ECUADOR),
+            DbColumns.VALUE,
+        ]
+        == np.array([7, 8, 9])
+    )
 
-    assert all(df_project.loc[(df_project[DbColumns.SECTOR] == ONE_B) &
-                              (df_project[DbColumns.GAS] == N2O) &
-                              (df_project[DbColumns.ID] == ECUADOR), DbColumns.VALUE] == np.array([14, 16, 18]))
+    assert all(
+        df_project.loc[
+            (df_project[DbColumns.SECTOR] == ONE_B)
+            & (df_project[DbColumns.GAS] == N2O)
+            & (df_project[DbColumns.ID] == ECUADOR),
+            DbColumns.VALUE,
+        ]
+        == np.array([14, 16, 18])
+    )
 
 
 def test_baseline_forward_fill():
@@ -38,9 +50,21 @@ def test_baseline_forward_fill():
     df_project = proj_edgar.project()
 
     # Check a few specific values
-    assert all(df_project.loc[(df_project[DbColumns.SECTOR] == ONE_A) &
-                              (df_project[DbColumns.GAS] == CO2) &
-                              (df_project[DbColumns.ID] == ECUADOR), DbColumns.VALUE] == 4)
-    assert all(df_project.loc[(df_project[DbColumns.SECTOR] == ONE_A) &
-                              (df_project[DbColumns.GAS] == N2O) &
-                              (df_project[DbColumns.ID] == USA), DbColumns.VALUE] == 4.37)
+    assert all(
+        df_project.loc[
+            (df_project[DbColumns.SECTOR] == ONE_A)
+            & (df_project[DbColumns.GAS] == CO2)
+            & (df_project[DbColumns.ID] == ECUADOR),
+            DbColumns.VALUE,
+        ]
+        == 4
+    )
+    assert all(
+        df_project.loc[
+            (df_project[DbColumns.SECTOR] == ONE_A)
+            & (df_project[DbColumns.GAS] == N2O)
+            & (df_project[DbColumns.ID] == USA),
+            DbColumns.VALUE,
+        ]
+        == 4.37
+    )

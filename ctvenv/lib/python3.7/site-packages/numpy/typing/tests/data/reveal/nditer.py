@@ -4,7 +4,7 @@ import numpy as np
 nditer_obj: np.nditer
 
 with nditer_obj as context:
-    reveal_type(context)   # E: numpy.nditer
+    reveal_type(context)  # E: numpy.nditer
 
 reveal_type(len(nditer_obj))  # E: builtins.int
 reveal_type(copy.copy(nditer_obj))  # E: numpy.nditer

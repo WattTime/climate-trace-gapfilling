@@ -12,7 +12,9 @@ from typing import Any
 
 import numpy as np
 
+
 class SubClass(np.ndarray): ...
+
 
 f8: np.float64
 B: SubClass
@@ -106,7 +108,7 @@ reveal_type(AR_f8.min(out=B))  # E: SubClass
 
 reveal_type(f8.newbyteorder())  # E: {float64}
 reveal_type(AR_f8.newbyteorder())  # E: numpy.ndarray[Any, numpy.dtype[{float64}]]
-reveal_type(B.newbyteorder('|'))  # E: SubClass
+reveal_type(B.newbyteorder("|"))  # E: SubClass
 
 reveal_type(f8.prod())  # E: Any
 reveal_type(AR_f8.prod())  # E: Any

@@ -2,6 +2,7 @@
 Helper functions to generate range-like data for DatetimeArray
 (and possibly TimedeltaArray/PeriodArray)
 """
+
 from __future__ import annotations
 
 import numpy as np

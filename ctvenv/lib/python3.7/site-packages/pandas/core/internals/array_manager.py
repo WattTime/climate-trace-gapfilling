@@ -1,6 +1,7 @@
 """
 Experimental manager based on storing a collection of 1D arrays
 """
+
 from __future__ import annotations
 
 from typing import (

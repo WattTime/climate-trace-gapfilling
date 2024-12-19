@@ -3,6 +3,7 @@ Table Schema builders
 
 https://specs.frictionlessdata.io/json-table-schema/
 """
+
 from __future__ import annotations
 
 from typing import (
