@@ -203,7 +203,7 @@ def test_combustion_fractions(ceds_lime_comb, ceds_glass_comb,\
     return all([x < 1e-5 for x in test_to_be_zero])
 
 
-def main():
+def main(country_table):
     """
     Overall function to derive new CEDS-related sectors
     to be included in 2024 gap equations. Calculates new
@@ -214,7 +214,7 @@ def main():
 
     Parameters
     ----------
-    None
+    country_table: str, table to write to
 
     Returns
     -------
@@ -296,7 +296,7 @@ def main():
         #write to db
         write_conn = DataHandler()
         write_conn.insert_with_update(data_to_insert[pd.to_datetime(data_to_insert.start_time).dt.year.isin(yrs_to_write)],
-                                        'country_emissions_staging')
+                                        country_table)
     return
 
 if __name__ == "__main__":
