@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 GF_SOURCE_DATA_COLUMNS = [
     "edgar",
@@ -13,10 +14,11 @@ GF_SOURCE_DATA_COLUMNS = [
 ]
 # GAP_EQUATIONS = pd.read_csv(r"gap_filling/data/gap_equations.csv")
 COMP_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
-COL_ORDER = ["Data source", "ID", "Sector", "Gas", "Unit"] + COMP_YEARS
-CODE_CONVERSION = pd.read_csv("gap_filling/data/CT_ISO_Codes.csv").applymap(
-    lambda x: x.strip(" ")
-)
+CEDS_FINAL_YEAR = 2022
+COL_ORDER = ['Data source', 'ID', 'Sector', 'Gas', 'Unit'] + COMP_YEARS
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+CODE_CONVERSION = pd.read_csv(os.path.join(script_dir, 'data', 'CT_ISO_Codes.csv')).applymap(lambda x: x.strip(' '))
 
 # Dictionaries Megan used to convert column names to previous names
 DB_SOURCE_TO_COL_NAME = {
@@ -41,7 +43,7 @@ COL_NAME_TO_DB_SOURCE = {
 
 
 def get_gap_equations():
-    return pd.read_csv(r"gap_filling/data/gap_equations.csv")
+    return pd.read_csv(os.path.join(script_dir, 'data', 'gap_equations.csv'))
     # else:
     #     return pd.read_csv(r"gap_filling/data/gap_equations_2022release.csv")
 

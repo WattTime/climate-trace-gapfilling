@@ -26,7 +26,7 @@ def data_cleaning(sectors_gap_filled):
     return sectors_gap_filled
 
 
-def fill_all_sector_gaps(input_df, ge=None):
+def fill_all_sector_gaps(input_df, ge=None, output_intermediate_data=False):
 
     GE = ge
 
@@ -66,7 +66,9 @@ def fill_all_sector_gaps(input_df, ge=None):
         get_country_name(name) for name in sectors_gap_filled["ID"]
     ]
     sectors_gap_filled["Created"] = datetime.now().isoformat()
-    # sectors_gap_filled.to_csv("20231020_gap_fill_before_clean.csv")
+
+    if output_intermediate_data:
+        sectors_gap_filled.to_csv('20231020_gap_fill_before_clean.csv')
     # sectors_gap_filled[COL_ORDER + "Created"].to_csv('/Users/leegans/Downloads/watttime/gapupdated.csv')
     new_ct_entries = data_cleaning(sectors_gap_filled)
 

@@ -2,9 +2,13 @@ import scipy.stats as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 from gap_filling.data_handler import DataHandler
 from gap_filling.utils import get_all_ceds_data
+from gap_filling.constants import COMP_YEARS
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def quantify_country_scaling_factor(df, sec1, sec2, country, show_plots=True):
@@ -127,14 +131,12 @@ def calculate_scaling_factors(df):
     # First get country code for each relevant country
     country_code = [iso3_dict[c] for c in countries]
 
-    sf_df = pd.DataFrame(
-        {
-            "ID": country_code,
-            "2H2_per_1A2e": [scaling_factor_dict[c][0] for c in countries],
-        }
-    )
-    sf_df.to_csv("gap_filling/data/2H2_per_1A2e_AnnexI_scaling_factors.csv")
-
+    sf_df = pd.DataFrame({
+        "ID": country_code,
+        "2H2_per_1A2e": [scaling_factor_dict[c][0] for c in countries]
+    })
+    sf_df.to_csv(os.path.join(script_dir, 'data', '2H2_per_1A2e_AnnexI_scaling_factors.csv'))
+    
     return sf_df
 
 
@@ -165,12 +167,13 @@ def main():
     ceds_data["Units"] = "tonnes"
     # Convert column names to strings for processing
     ceds_data.columns = ceds_data.columns.astype(str)
-    # Now ensure all ceds and edgar values are numpy floats
-    for yr in range(2015, 2025):
+    #Now ensure all ceds and edgar values are numpy floats
+    for yr in COMP_YEARS:
         ceds_data[str(yr)] = ceds_data[str(yr)].astype(float)
 
-    # Get AnnexI data
-    df = pd.read_csv(f"./gap_filling/data/CO2_annual_1A2e_2H2_emissions_in_kt.csv")
+    #Get AnnexI data
+    df = pd.read_csv(os.path.join(script_dir, 'data', 'CO2_annual_1A2e_2H2_emissions_in_kt.csv'))
+
     df.replace(to_replace=["NE", "NO", "IE", "NA", "NO,IE"], value=np.nan, inplace=True)
     df.Sector = df.Sector.astype(str).str.strip()
     # Drop EU
@@ -189,13 +192,11 @@ def main():
 
     # Scale 1A2e data by country-specific scaling factors and send back the dataframe
     sector_ceds_df = ceds_data[sel]
-    for col in np.arange(2015, 2025).astype(str):
+    for col in np.array(COMP_YEARS).astype(str):
         for iso in sf_df["ID"].values:
-            sel_new = (sel) & (ceds_data["ID"] == iso)
-            sector_ceds_df.loc[sel_new, col] *= sf_df.loc[
-                sf_df["ID"] == iso, "2H2_per_1A2e"
-            ].values[0]
-    # Establish the sector
+            sel_new = (sector_ceds_df["ID"] == iso)
+            sector_ceds_df.loc[sel_new, col] *= sf_df.loc[sf_df["ID"] == iso, "2H2_per_1A2e"].values[0]
+    #Establish the sector
     sector_ceds_df.loc[:, "Sector"] = "2.H.2-food-beverage-and-tobacco-direct"
 
     return sector_ceds_df.copy()

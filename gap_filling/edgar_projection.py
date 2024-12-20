@@ -7,7 +7,7 @@ from datetime import datetime
 from sklearn.linear_model import LinearRegression
 
 from gap_filling.data_handler import DataHandler
-from gap_filling.constants import DatabaseColumns as DbColumns
+from gap_filling.constants import DatabaseColumns as DbColumns, COMP_YEARS
 from gap_filling.utils import from_years_to_start_and_end_times
 
 
@@ -15,6 +15,26 @@ class ProjectData:
     def __init__(self, db_params_file_path, source: str = "edgar"):
         self.source = source
         self.sectors_to_use_regression = None
+
+        if self.source not in ["edgar", "faostat", "ceds"]:
+            raise ValueError("Only 'edgar', 'faostat', 'ceds' acceptable as inputs.")
+
+        self.expected_emission_quantity_units = "tonnes"
+        self.db_params_file = db_params_file_path
+
+        self.group_list: List[str] = [DbColumns.ID, DbColumns.SECTOR, DbColumns.GAS]
+        self.group_list_with_year: List[str] = self.group_list + [DbColumns.YEAR]
+
+        # Preallocate empty data frame because I hate warning messages
+        self.data = pd.DataFrame()
+
+    def load(self):
+        dh = DataHandler()
+        self.data = dh.load_data(self.source, rename_columns=False)
+        self.end_training_year = self.data["year"].max()
+        self.years_forward = np.array(COMP_YEARS)[np.array(COMP_YEARS)>self.end_training_year] - self.end_training_year
+        self.predicted_years = np.arange(self.end_training_year,np.nanmax(COMP_YEARS)).astype(int)+1
+
         if self.source == "edgar":
             # Sectors better suited for regression selected after thorough analysis of edgar data
             self.sectors_to_use_regression = [
@@ -24,36 +44,8 @@ class ProjectData:
                 "4.D Wastewater Treatment and Discharge",
             ]
             self.do_regression = True  # True if sectors_to_use_regression is not None
-            # Last available year of data
-            self.end_training_year: int = 2022
-            # Number of years to project forward
-            self.years_forward = np.array([1, 2])
-            self.predicted_years = np.array([2023, 2024])
-
-        elif self.source == "faostat":
-            self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
-            # Last available year of data
-            self.end_training_year: int = 2021
-            # Number of years to project forward
-            self.years_forward = np.array([1, 2])
-            self.predicted_years = np.array([2022, 2023, 2024])
-
-        elif self.source == "ceds":
-            self.do_regression = False  # Must be changed if any faostat sectors switch to a different method
-            # Last available year of data
-            self.end_training_year: int = 2022
-            # Number of years to project forward
-            self.years_forward = np.array([1, 2])
-            self.predicted_years = np.array([2023, 2024])
-
         else:
-            raise ValueError("Only 'edgar', 'faostat', 'ceds' acceptable as inputs.")
-
-        self.expected_emission_quantity_units = "tonnes"
-        self.db_params_file = db_params_file_path
-
-        self.group_list: List[str] = [DbColumns.ID, DbColumns.SECTOR, DbColumns.GAS]
-        self.group_list_with_year: List[str] = self.group_list + [DbColumns.YEAR]
+            self.do_regression = False
 
         # Regression training window (6 years total)
         self.regression_training_window = 6
@@ -64,12 +56,6 @@ class ProjectData:
         # Number of data points needed to perform regression
         self.min_years_for_regression = 4
 
-        # Preallocate empty data frame because I hate warning messages
-        self.data = pd.DataFrame()
-
-    def load(self):
-        dh = DataHandler()
-        self.data = dh.load_data(self.source, rename_columns=False)
 
     def clean(self):
         # Before anything else, confirm the unit
