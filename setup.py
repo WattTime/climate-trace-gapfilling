@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-setup(name="gap_filling", packages=find_packages())
+#setup(name="gap_filling", packages=find_packages())
 
 setup(
     name="gap_filling",

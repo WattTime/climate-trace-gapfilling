@@ -16,7 +16,7 @@ from gap_filling.utils import (
     get_all_ceds_derived_data,
 )
 from gap_filling.constants import get_gap_equations, get_sectors
-import ceds_derived_sectors
+from gap_filling import ceds_derived_sectors
 
 
 def process_all(args):
