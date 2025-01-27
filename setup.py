@@ -10,4 +10,8 @@ setup(
     author="Megan Baker and Alexandra Stephens",
     author_email="megan.baker@jhuapl.edu, alexandra.stephens@jhuapl.edu",
     packages=find_packages(exclude=("tests", "docs")),
+    include_package_data=True,
+    package_data={
+        "gap_filling": ["data/*.csv"]
+    }
 )
