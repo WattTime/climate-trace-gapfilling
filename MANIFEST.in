@@ -1,0 +1,4 @@
+# MANIFEST.in
+
+# This will include all .csv files in gap_filling/data/ and any subdirectories:
+recursive-include gap_filling/data *.csv
