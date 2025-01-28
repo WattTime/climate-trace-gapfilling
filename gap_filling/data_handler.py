@@ -30,7 +30,7 @@ def init_db_connect():
     pghost = os.getenv("CLIMATETRACE_HOST", "127.0.0.1")
     pguser = os.getenv("CLIMATETRACE_USER", "chromacloud")
     pgpass = os.getenv("CLIMATETRACE_PASS")
-    pgport = os.getenv("CLIMATETRACE_PORT", "5432")
+    pgport = os.getenv("CLIMATETRACE_PORT", 5678)
 
     con_str = f"host='{pghost}' dbname='{pgdb}' user='{pguser}' password='{pgpass}' port='{pgport}'"
     conn = pg2.connect(con_str)
