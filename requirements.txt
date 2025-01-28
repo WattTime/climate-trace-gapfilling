@@ -61,7 +61,8 @@ scipy==1.8.1
     # via scikit-learn
 six==1.16.0
     # via python-dateutil
-sklearn==0.0
+# sklearn==0.0
+    # Commented out due to redundancy
     # via -r requirements.in
 threadpoolctl==3.1.0
     # via scikit-learn
