@@ -3,4 +3,4 @@ matplotlib
 pandas
 psycopg2
 pytest
-sklearn
+# sklearn # Redundant to scikit-learn, but left for reference
