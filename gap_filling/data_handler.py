@@ -9,6 +9,7 @@ import psycopg2 as pg2
 import os
 
 from gap_filling.utils import parse_and_format_query_data
+from gap_filling.constants import COMP_YEARS
 
 INSERT_MAPPING = {
     "ois": "original_inventory_sector",
@@ -206,3 +207,77 @@ class DataHandler:
                                          """
                 cur.execute(insert_str, vals)
                 self.conn.commit()
+
+    def close_conn(self):
+        self.conn.close()
+
+
+def fetch_data_as_df(query):
+    """
+    fetch data from DB and return
+    as a pandas dataframe.
+    """
+    db_con = DataHandler()
+    with db_con.conn.cursor() as cur:
+        try:
+            cur.execute(query)
+            red = cur.fetchall()
+            colnames = [desc[0] for desc in cur.description]
+        except Exception as e:
+            print(f'could not fetch data: {e}')
+        finally:
+            cur.close()
+            db_con.conn.commit()
+    db_con.close_conn()
+    dfc = pd.DataFrame(data=red, columns=colnames)
+    return dfc
+
+
+def get_usgs_activity_data():
+    query = f''' 
+    SELECT
+        EXTRACT(
+            YEAR
+            FROM
+                see.start_time
+        ) AS YEAR,
+        see.iso3_country,
+        see.reporting_entity,
+        see.activity,
+        see.activity_units,
+        see.original_inventory_sector
+    FROM
+        source_emissions_external see
+        JOIN source_information_external sie ON see.source_code=sie.source_code AND see.source_id=sie.source_id
+    WHERE
+        see.reporting_entity = 'usgs'
+        AND see.original_inventory_sector = 'lime'
+        AND see.gas IN ('co2')
+        AND sie.source_type = 'country';
+    '''
+
+    df = fetch_data_as_df(query)
+
+    #Rename columns
+    df = df.rename(columns={
+        "iso3_country": "ID",
+        "reporting_entity": "Data Source",
+        "original_inventory_sector": "Sector",
+        "activity_units": "Units"
+    })
+
+    df_piv = df.pivot(index=["ID", "Data Source", "Units"], columns="year", values="activity").reset_index()
+
+    missing_years = [cy for cy in COMP_YEARS if cy not in df_piv.columns]
+
+    df_piv = df_piv.reindex(
+        columns=df_piv.columns.tolist() + missing_years
+    )
+
+    #Project forward to end of timeseries
+    df_piv = df_piv.ffill(axis=1).bfill(axis=1)
+
+    #Drop index name
+    df_piv.columns.name = None
+
+    return df_piv

@@ -8,6 +8,7 @@ from gap_filling.constants import (
     GF_SOURCE_DATA_COLUMNS,
     get_country_name,
 )
+from gap_filling.data_handler import get_usgs_activity_data
 
 
 def prepare_df(concat_df):
@@ -73,3 +74,54 @@ def fill_all_sector_gaps(input_df, ge=None, output_intermediate_data=False):
     new_ct_entries = data_cleaning(sectors_gap_filled)
 
     return new_ct_entries[COL_ORDER]
+
+
+def update_based_on_activity(df, summarize_global_ef=False):
+    update_df = df.copy()
+
+    #Retrieve USGS activity data
+    usgs_df = get_usgs_activity_data()
+
+    # Precompute lime mask and filter data once
+    lime_mask = update_df["Sector"] == "lime"
+
+    # Process only for "co2" (extendable to other gases)
+    for gas in ["co2", "ch4", "n2o"]:
+        gas_mask = lime_mask & (update_df["Gas"] == gas)
+
+        # Merge once outside the loop
+        merged_df = update_df.loc[gas_mask].merge(
+            usgs_df[["ID"] + COMP_YEARS], on="ID", suffixes=["", "_activity"], how="left"
+        )
+
+        # Compute EF where activity is nonzero
+        ef_df = merged_df[[str(i) for i in COMP_YEARS]].div(merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].values)
+
+        # Replace zero EF values with NaN
+        ef_df.replace(0, np.nan, inplace=True)
+
+        # Compute global EF per year
+        global_efs = ef_df.mean(skipna=True)
+
+        # Compute inferred emissions using global EF
+        inferred_emissions = merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].mul(global_efs.values)
+
+        #Rename columns:
+        inferred_emissions = inferred_emissions.rename(columns=
+            {f"{yr}_activity": yr for yr in COMP_YEARS}
+        )
+
+        # Apply inferred emissions only where original values were zero
+        zero_mask = (update_df.loc[gas_mask, COMP_YEARS] == 0).reset_index(drop=True)
+        update_df.loc[gas_mask, COMP_YEARS] = np.where(
+            zero_mask & inferred_emissions.notna(),
+            inferred_emissions,
+            update_df.loc[gas_mask, COMP_YEARS]
+        )
+
+        if summarize_global_ef:
+            # Summarize EF values
+            ef_values = ef_df.stack().dropna()
+            print(f"{gas} global lime EF summary: ")
+            print(pd.DataFrame({"lime_ef": ef_values}).describe())
+    return update_df

@@ -5,7 +5,7 @@ import pandas as pd
 
 from gap_filling.data_handler import DataHandler
 from gap_filling.edgar_projection import ProjectData
-from gap_filling.fill_gaps import fill_all_sector_gaps, prepare_df
+from gap_filling.fill_gaps import fill_all_sector_gaps, prepare_df, update_based_on_activity
 from gap_filling.utils import (
     parse_and_format_data_to_insert,
     get_all_edgar_data,
@@ -115,6 +115,9 @@ def process_all(args):
     df = prepare_df(concat_df)
     gap_filled_data = fill_all_sector_gaps(df, gap_equations)
 
+    #Update emissions based on country level activity, where applicable (i.e. where activity is nonzero but emissions are zero)
+    gap_filled_data = update_based_on_activity(gap_filled_data)
+
     # Generate the co2e data
     co2e_20_data = generate_carbon_equivalencies(
         getedgar_conn, gap_filled_data, co2e_to_compute=20
@@ -134,6 +137,9 @@ def process_all(args):
     data_to_insert["recency_date"] = datetime.datetime.now().isoformat()
     # Write results to the DB
     write_conn.insert_with_update(data_to_insert, "country_emissions_staging")
+
+    #Close all connections:
+    getedgar_conn.close_conn(); getceds_conn.close_conn(); getct_conn.close_conn(); getcedsderived_conn.close_conn(); write_conn.close_conn()
 
 
 if __name__ == "__main__":
