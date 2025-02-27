@@ -94,17 +94,11 @@ def update_based_on_activity(df, summarize_global_ef=False):
             usgs_df[["ID"] + COMP_YEARS], on="ID", suffixes=["", "_activity"], how="left"
         )
 
-        # Compute EF where activity is nonzero
-        ef_df = merged_df[[str(i) for i in COMP_YEARS]].div(merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].values)
-
-        # Replace zero EF values with NaN
-        ef_df.replace(0, np.nan, inplace=True)
-
         # Compute global EF per year
-        global_efs = ef_df.mean(skipna=True)
+        global_efs = merged_df[[str(yr) for yr in COMP_YEARS]].sum().values / merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].sum().values
 
         # Compute inferred emissions using global EF
-        inferred_emissions = merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].mul(global_efs.values)
+        inferred_emissions = merged_df[[f"{yr}_activity" for yr in COMP_YEARS]].mul(global_efs)
 
         #Rename columns:
         inferred_emissions = inferred_emissions.rename(columns=
@@ -121,7 +115,5 @@ def update_based_on_activity(df, summarize_global_ef=False):
 
         if summarize_global_ef:
             # Summarize EF values
-            ef_values = ef_df.stack().dropna()
-            print(f"{gas} global lime EF summary: ")
-            print(pd.DataFrame({"lime_ef": ef_values}).describe())
+            print(f"{gas} global lime EF summary: {global_efs}")
     return update_df
