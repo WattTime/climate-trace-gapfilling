@@ -86,7 +86,7 @@ def process_all(args):
     ############################
     # Recalculate ceds-derived data with projected data
     ############################
-    # ceds_derived_sectors.main()
+    # ceds_derived_sectors.main("country_emissions_staging")
 
     ############################
     # Fill Gaps
