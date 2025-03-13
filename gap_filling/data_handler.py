@@ -126,7 +126,7 @@ class DataHandler:
             curs.execute("SELECT * FROM ghgs WHERE f_gas_category is NOT NULL")
         else:
             curs.execute(
-                "SELECT lower_designation as gas, gwp_20yr as co2e_20, gwp_100yr as co2e_100 FROM ghgs"
+                "SELECT name as gas_name, lower_designation as gas, gwp_20yr as co2e_20, gwp_100yr as co2e_100 FROM ghgs"
             )
 
         colnames = [desc[0] for desc in curs.description]

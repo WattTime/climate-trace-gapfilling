@@ -9,6 +9,7 @@ from gap_filling.constants import (
     DB_SOURCE_TO_COL_NAME,
     COMP_YEARS,
     COL_ORDER,
+    NON_FOSSIL_SECTORS
 )
 
 
@@ -144,12 +145,30 @@ def parse_and_format_data_to_insert(
 
     return my_df
 
+def assign_gas_name(df, df2):
+    # Create a mapping of gas to a unique gas_name if it maps to one unique value
+    gas_mapping = df2.groupby("Gas")["gas_name"].nunique()
+    unique_gases = gas_mapping[gas_mapping == 1].index
+    gas_to_name = df2[df2["Gas"].isin(unique_gases)].set_index("Gas")["gas_name"].to_dict()
+    
+    # Assign gas_name based on mapping where gas has a unique value
+    df["gas_name"] = df["Gas"].map(gas_to_name)
+    
+    # Handle CH4 cases
+    ch4_mask = df["Gas"].eq("ch4")
+    non_fossil_mask = df["Sector"].isin(NON_FOSSIL_SECTORS)
+    
+    df.loc[ch4_mask & non_fossil_mask, "gas_name"] = "non_fossil_methane"
+    df.loc[ch4_mask & ~non_fossil_mask, "gas_name"] = "fossil_methane"
+    
+    return df
 
 def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     # col_to_mult can be either 20 or 100 to compute the 20 or 100 year carbon equivalency for the data
     ghgs = dh.get_ghgs().rename(columns={"gas": "Gas"})
+    df = assign_gas_name(df.copy(), ghgs)
     # Merge on the Gas value
-    merged_df = pd.merge(df, ghgs, on="Gas")
+    merged_df = pd.merge(df, ghgs, on="gas_name")
 
     col_to_mult = "co2e_" + str(co2e_to_compute)
 

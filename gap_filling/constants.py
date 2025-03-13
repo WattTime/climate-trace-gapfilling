@@ -17,6 +17,36 @@ COMP_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
 CEDS_FINAL_YEAR = 2022
 COL_ORDER = ['Data source', 'ID', 'Sector', 'Gas', 'Unit'] + COMP_YEARS
 
+NON_FOSSIL_SECTORS = [
+    "forest-land-clearing", 
+    "forest-land-degradation", 
+    "forest-land-fires",
+    "net-shrubgrass", 
+    "net-wetland", 
+    "removals",
+    "shrubgrass-fires", 
+    "wetland-fires", 
+    "net-forest-land", 
+    "water-reservoirs", 
+    "manure-left-on-pasture-cattle",
+    "cropland-fires", 
+    "enteric-fermentation-cattle-pasture",
+    "synthetic-fertilizer-application", 
+    "enteric-fermentation-cattle-operation",
+    "manure-management-cattle-operation", 
+    "biological-treatment-of-solid-waste-and-biogenic",
+    "crop-residues", 
+    "domestic-wastewater-treatment-and-discharge",
+    "enteric-fermentation-other", 
+    "incineration-and-open-burning-of-waste",
+    "industrial-wastewater-treatment-and-discharge", 
+    "manure-applied-to-soils",
+    "manure-management-other", 
+    "other-agricultural-soil-emissions",
+    "rice-cultivation", 
+    "solid-waste-disposal"
+]
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 CODE_CONVERSION = pd.read_csv(os.path.join(script_dir, 'data', 'CT_ISO_Codes.csv')).applymap(lambda x: x.strip(' '))
 
