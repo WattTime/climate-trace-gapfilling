@@ -56,9 +56,12 @@ def fill_all_sector_gaps(input_df, ge=None, output_intermediate_data=False):
     df_merge[COMP_YEARS] = df_merge[COMP_YEARS].multiply(df_merge["values"], axis=0)
 
     # For each (Country, Gas, and sector to be gap filled) group, sum up all the corresponding values per year
-    sectors_gap_filled = df_merge.groupby(
-        ["ID", "Gas", "to_be_gap_filled", "Unit"], as_index=False
-    )[COMP_YEARS].sum()
+    # sectors_gap_filled = df_merge.groupby(
+    #     ["ID", "Gas", "to_be_gap_filled", "Unit"], as_index=False
+    # )[COMP_YEARS].sum()
+
+    sectors_gap_filled = df_merge.groupby(["ID", "Gas", "to_be_gap_filled", "Unit"], as_index=False)\
+        [COMP_YEARS].agg(lambda x: np.nan if x.isna().any() else x.sum())
 
     # Add in removed columns and rename others
     sectors_gap_filled.rename(columns={"to_be_gap_filled": "Sector"}, inplace=True)
@@ -70,7 +73,6 @@ def fill_all_sector_gaps(input_df, ge=None, output_intermediate_data=False):
 
     if output_intermediate_data:
         sectors_gap_filled.to_csv('20231020_gap_fill_before_clean.csv')
-    # sectors_gap_filled[COL_ORDER + "Created"].to_csv('/Users/leegans/Downloads/watttime/gapupdated.csv')
     new_ct_entries = data_cleaning(sectors_gap_filled)
 
     return new_ct_entries[COL_ORDER]
