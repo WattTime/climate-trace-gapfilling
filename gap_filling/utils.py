@@ -187,19 +187,63 @@ def generate_carbon_equivalencies(dh, df, co2e_to_compute=100):
     return co2e_vals
 
 
+# def add_all_gas_rows(df, SECTORS):
+#     # Drop rows with nas for country id
+#     df.dropna(subset=["ID"], inplace=True)
+#     # Set the individual indexes
+#     gases = ["co2", "n2o", "ch4", "co2e_20yr", "co2e_100yr"]
+#     multi_ind_col_list = ["ID", "Sector", "Gas"]
+#     # countries = df['Country'].unique()
+#     ids = df["ID"].unique()
+#     sectors = np.unique(SECTORS)
+
+#     # Reindex to ensure every country, gas, sector, and year combination has a row
+#     multi_index_all_years = pd.MultiIndex.from_product(
+#         [ids, sectors, gases], names=multi_ind_col_list
+#     )
+
+#     print(f"Number of country-sector-gas combinations: {len(multi_index_all_years)}")
+
+#     df = (
+#         df.set_index(multi_ind_col_list)
+#         .reindex(multi_index_all_years, fill_value=0)
+#         .reset_index()
+#     )
+#     df["Data source"] = "climate-trace"
+#     df["Unit"] = "tonnes"
+#     # df['Country'] = [get_country_name(name) for name in df['ID']]
+
+#     return df
+
 def add_all_gas_rows(df, SECTORS):
     # Drop rows with nas for country id
     df.dropna(subset=["ID"], inplace=True)
-    # Set the individual indexes
-    gases = ["co2", "n2o", "ch4", "co2e_20yr", "co2e_100yr"]
+
+    # Define known gases for reindexing
+    default_gases = ["co2", "n2o", "ch4", "co2e_20yr", "co2e_100yr"]
     multi_ind_col_list = ["ID", "Sector", "Gas"]
-    # countries = df['Country'].unique()
     ids = df["ID"].unique()
     sectors = np.unique(SECTORS)
 
-    # Reindex to ensure every country, gas, sector, and year combination has a row
-    multi_index_all_years = pd.MultiIndex.from_product(
-        [ids, sectors, gases], names=multi_ind_col_list
+    # Determine all gases already in the DataFrame per sector
+    existing_gases_per_sector = (
+        df.groupby("Sector")["Gas"].unique().to_dict()
+    )
+
+    # Build a complete multi-index for reindexing
+    index_tuples = []
+    for sector in sectors:
+        sector_gases = (
+            existing_gases_per_sector.get(sector)
+            if sector == "fluorinated-gases"
+            else default_gases
+        )
+        for id_ in ids:
+            for gas in sector_gases:
+                index_tuples.append((id_, sector, gas))
+
+    multi_index_all_years = pd.MultiIndex.from_tuples(
+        index_tuples, names=multi_ind_col_list
     )
 
     print(f"Number of country-sector-gas combinations: {len(multi_index_all_years)}")
@@ -211,9 +255,9 @@ def add_all_gas_rows(df, SECTORS):
     )
     df["Data source"] = "climate-trace"
     df["Unit"] = "tonnes"
-    # df['Country'] = [get_country_name(name) for name in df['ID']]
 
     return df
+
 
 
 def add_carbon_eq_column(df):
