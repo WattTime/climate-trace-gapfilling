@@ -14,7 +14,7 @@ GF_SOURCE_DATA_COLUMNS = [
 ]
 # GAP_EQUATIONS = pd.read_csv(r"gap_filling/data/gap_equations.csv")
 COMP_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
-CEDS_FINAL_YEAR = 2022
+CEDS_FINAL_YEAR = 2023
 COL_ORDER = ['Data source', 'ID', 'Sector', 'Gas', 'Unit'] + COMP_YEARS
 
 NON_FOSSIL_SECTORS = [
