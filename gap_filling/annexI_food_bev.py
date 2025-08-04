@@ -6,7 +6,10 @@ import os
 
 from gap_filling.data_handler import DataHandler
 from gap_filling.utils import get_all_ceds_data
-from gap_filling.constants import COMP_YEARS
+from gap_filling.constants import COMP_YEARS, CEDS_FINAL_YEAR
+
+#LIMIT COMP_YEARS to only where we have CEDS data:
+COMP_YEARS = [i for i in COMP_YEARS if i <= CEDS_FINAL_YEAR]
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -160,7 +163,7 @@ def main():
     # get connection
     get_ceds_conn = DataHandler()
     # Get CEDS data
-    ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=True)
+    ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=False)
     # Combine projected and existing data
     ceds_data = ceds_data.groupby(["ID", "Sector", "Gas"]).sum().reset_index()
     ceds_data["Data source"] = "ceds"

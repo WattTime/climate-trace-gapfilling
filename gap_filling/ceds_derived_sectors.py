@@ -19,6 +19,9 @@ from gap_filling.utils import (
 from gap_filling import annexI_food_bev
 from gap_filling.constants import COMP_YEARS, CEDS_FINAL_YEAR
 
+#LIMIT COMP_YEARS to only where we have CEDS data:
+COMP_YEARS = [i for i in COMP_YEARS if i <= CEDS_FINAL_YEAR]
+
 
 def initialize_data():
     """
@@ -50,7 +53,7 @@ def initialize_data():
     getct_conn = DataHandler()
     get_ceds_conn = DataHandler()
 
-    edgar_data = get_all_edgar_data(getedgar_conn, get_projected=True)
+    edgar_data = get_all_edgar_data(getedgar_conn, get_projected=False)
     # Combine projected and existing data
     edgar_data = edgar_data.groupby(["ID", "Sector", "Gas"]).sum().reset_index()
     edgar_data["Data source"] = "edgar"
@@ -59,7 +62,7 @@ def initialize_data():
     edgar_data.columns = edgar_data.columns.astype(str)
 
     # Get CEDS data
-    ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=True)
+    ceds_data = get_all_ceds_data(get_ceds_conn, get_projected=False)
     # Combine projected and existing data
     ceds_data = ceds_data.groupby(["ID", "Sector", "Gas"]).sum().reset_index()
     ceds_data["Data source"] = "ceds"
@@ -72,11 +75,11 @@ def initialize_data():
         edgar_data[str(yr)] = edgar_data[str(yr)].astype(float)
         ceds_data[str(yr)] = ceds_data[str(yr)].astype(float)
 
-    # Get the CT data from db just for reference
-    ct_data = getct_conn.load_data("climate-trace", years_to_columns=True)
-    ct_data.columns = ct_data.columns.astype(str)
+    #Drop EDGAR data beyond final COMP_YEARS
+    drop_cols = [col for col in edgar_data.columns if col.isdigit() and int(col) > CEDS_FINAL_YEAR]
+    edgar_data = edgar_data.drop(columns=drop_cols)
 
-    return edgar_data, ceds_data, ct_data
+    return edgar_data, ceds_data
 
 
 def sector_fractional_contribution(
@@ -241,7 +244,7 @@ def main(country_table):
     """
 
     # Initialize data:
-    edgar_data, ceds_data, ct_data = initialize_data()
+    edgar_data, ceds_data = initialize_data()
 
     # Now create new CEDS sectors:
 

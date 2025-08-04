@@ -286,7 +286,7 @@ def assemble_data(gap_filled_df, co2e_20_df, co2e_100_df, SECTORS):
 
 
 def get_all_edgar_data(data_handler, get_projected=False):
-    expected_last_edgar_value_year = 2022
+    expected_last_edgar_value_year = 2024
     columns_to_check = np.where(
         np.array(COMP_YEARS) > expected_last_edgar_value_year, COMP_YEARS, -1
     )
@@ -320,7 +320,7 @@ def get_all_faostat_data(data_handler, get_projected=False):
 
 
 def get_all_ceds_data(data_handler, get_projected=False):
-    expected_last_ceds_value_year = 2022
+    expected_last_ceds_value_year = 2023
     columns_to_check = np.where(
         np.array(COMP_YEARS) > expected_last_ceds_value_year, COMP_YEARS, -1
     )
