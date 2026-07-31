@@ -329,7 +329,7 @@ def main(country_table):
     data_to_insert = parse_and_format_data_to_insert(ceds_derived_df)
     data_to_insert["created_date"] = datetime.datetime.now().isoformat()
 
-    for proj in [False, True]:
+    for proj in [False]: #No longer projecting forward
 
         if proj:
             yrs_to_write =  np.array(COMP_YEARS)[np.array(COMP_YEARS) > CEDS_FINAL_YEAR]
