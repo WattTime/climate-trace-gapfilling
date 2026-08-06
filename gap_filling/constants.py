@@ -11,6 +11,7 @@ GF_SOURCE_DATA_COLUMNS = [
     "ceds-derived",
     "ceds-projected",
     "ceds-derived-projected",
+    "climate-trace-derived",
 ]
 # GAP_EQUATIONS = pd.read_csv(r"gap_filling/data/gap_equations.csv")
 COMP_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]
